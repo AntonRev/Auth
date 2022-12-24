@@ -1,0 +1,51 @@
+from datetime import timedelta
+from logging import config as logging_config
+
+from pydantic import BaseSettings, Field
+
+from config.logger import LOGGING
+
+# Применяем настройки логирования
+logging_config.dictConfig(LOGGING)
+
+
+# Настройки приложения
+class Settings(BaseSettings):
+    # Настройки Redis
+    REDIS_HOST: str = Field('127.0.0.1', env='REDIS_HOST')
+    REDIS_PORT: int = Field(6379, env='REDIS_PORT')
+    CACHE_EXPIRE_IN_SECONDS: int = Field(300, env='CACHE_EXPIRE_IN_SECONDS')  # 5 минут
+    REQUEST_LIMIT_PER_MINUTE: int = Field(5, env='REQUEST_LIMIT_PER_MINUTE')  # 5 запросов в мин с 1 ip при @ratelimit()
+    # Настройки Postgresql
+    POSTGRES_SERVER: str = Field('127.0.0.1', env='POSTGRES_SERVER')
+    POSTGRES_PORT: int = Field(5432, env='POSTGRES_PORT')
+    POSTGRES_DB: str = Field('users', env='POSTGRES_DB')
+    POSTGRES_USER: str = Field('app', env='POSTGRES_USER')
+    POSTGRES_PASSWORD: str = Field('123qwe', env='POSTGRES_PASSWORD')
+    # JWT
+    JWT_SECRET_KEY: str = Field('super-secret', env='JWT_SECRET_KEY')
+    # Jaeger
+    HOST_JAEGER: str = Field('localhost', env='HOST_JAEGER')
+    # Yandex Auth
+    CLIENT_ID: str = Field('3b33407b90004c1190e163fa373ad942', env='CLIENT_ID')
+    CLIENT_SECRET: str = Field('14f0d9e392ae499a9dcdb2c46a3310ea', env='CLIENT_SECRET')
+    URL_HOST: str = Field('127.0.0.1', env='FLASK_HOST')
+    PORT_HOST: str = Field('5000', env='PORT_HOST')
+
+
+
+
+config = Settings()
+
+
+# Настройки для FLASK
+class Config(object):
+    DEBUG = True
+    # JWT settings
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
+    JWT_SECRET_KEY = config.JWT_SECRET_KEY
+    JWT_ALGORITHM = 'HS256'
+    APISPEC_SWAGGER_URL = '/swagger/'
+    OPENAPI_SWAGGER_UI_SUPPORTED_SUBMIT_METHODS = ['get', 'put', 'post', 'delete', 'head', 'patch', 'trace']
+    TRAP_HTTP_EXCEPTIONS = 'True'
