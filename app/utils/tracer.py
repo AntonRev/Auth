@@ -11,7 +11,7 @@ def tracer(fn):
         tracer = trace.get_tracer(__name__)
         span = tracer.start_span(fn.__name__)
         span.set_attribute('http.request_id', request_id)
+        fn(*arg, **kwargs)
         span.end()
-        return fn(*arg, **kwargs)
 
     return wrapper
