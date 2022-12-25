@@ -61,7 +61,7 @@ def logout():
 
 
 @doc(description='Регистрация пользователя', tags=['Authorization'])
-@use_kwargs({'email': fields.Str(), 'password1': fields.Str(), 'password2': fields.Str()})
+@use_kwargs({'email': fields.Str(), 'password1': fields.Str(), 'password2': fields.Str(), 'age': fields.Int()})
 @marshal_with(TokenSchema)
 @auth.route('/signup', methods=['POST'])
 @ratelimit()
@@ -69,6 +69,7 @@ def signup_post(**kwargs):
     username = request.json.get("email", None)
     password = request.json.get("password1", None)
     password2 = request.json.get("password2", None)
+    password2 = request.json.get("age", None)
     ua = request.headers.get('User-Agent')
     msg = signup_service(username, password, password2, ua)
     return jsonify(msg)

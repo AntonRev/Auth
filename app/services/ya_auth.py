@@ -1,6 +1,7 @@
 import base64
 import logging
 import uuid
+from datetime import datetime
 
 import requests
 from flask import Blueprint
@@ -35,9 +36,12 @@ def get_data_service(token, ua):
     headers = {'Authorization': f'OAuth {token}'}
     response = requests.options(url=url, headers=headers).json()
     email = response['default_email']
+    birthday = response['birthday']
+    year_birthday = datetime.strptime(birthday, '%Y-%d-%m').year
+    age = datetime.now().year - year_birthday
     user = User.query.filter_by(email=email).first()
     if user is None:
-        user = User(email=email, password=uuid.uuid4().hex)
+        user = User(email=email, password=uuid.uuid4().hex, age=age)
         db.session.add(user)
         db.session.commit()
         user = User.query.filter_by(email=email).first()

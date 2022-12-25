@@ -90,18 +90,20 @@ class User(db.Model):
     password = db.Column(db.String, nullable=False)
     data_create = db.Column(db.DateTime, index=True, default=datetime.utcnow())
     auth_two_factor = db.Column(db.Boolean, unique=False, default=False)
+    age = db.Column(db.Int, index=True, default=18)
     role = db.relationship('Role', secondary='role_user')
     permission = db.relationship('Permission', secondary='user_permissions')
 
     def __repr__(self):
         return f'<User {self.login}>'
 
-    def __init__(self, email, password, role='user'):
+    def __init__(self, email, password, role='user', age=18):
         self.email = email
         self.login = email.split('@')[0]
         self.password = generate_password_hash(password)
         self.registered_on = datetime.now()
         self.role = [Role.query.filter_by(name=role).first()]
+        self.age = age
 
 
 class Totp(db.Model):
