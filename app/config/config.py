@@ -34,8 +34,18 @@ class Settings(BaseSettings):
     CLIENT_SECRET: str = Field('14f0d9e392ae499a9dcdb2c46a3310ea', env='CLIENT_SECRET')
     URL_HOST: str = Field('127.0.0.1', env='FLASK_HOST')
     PORT_HOST: str = Field('5000', env='PORT_HOST')
-
-
+    YANDEX_OAUTH = {'url': 'yandex',
+                    'redirect_uri': 'https://oauth.yandex.ru/verification_code',
+                    'client_id': '3b33407b90004c1190e163fa373ad942',
+                    'response_type': 'code',
+                    'display': 'popup',
+                    'dop_oaram': ''}
+    VK_OAUTH = {'url': 'vk',
+                    'redirect_uri': 'https://localhost/api/v1/oauth/code',
+                    'client_id': 'client_id',
+                    'response_type': 'code',
+                    'display': 'popup',
+                    'dop_oaram': '&scope=4194304'}
 
 
 config = Settings()

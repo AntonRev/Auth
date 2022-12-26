@@ -19,7 +19,7 @@ from api.v1.permission import permission, add_perm, get_perm, change_perm, get_p
 from api.v1.role import rol, get_role, add_role, change_role, delete_role, get_roles, set_roles, delete_roles
 from api.v1.totp import totp, check, sync_check, sync
 from api.v1.user import user, users, index
-from api.v1.ya_auth import ya_auth, get_data, get_auth, set_auth
+from api.v1.oauth import oauth, get_auth, set_auth
 from config.config import config
 from config.tracer import configure_tracer
 from db.db import init_db, db, init_db_for_cli
@@ -102,7 +102,7 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
 
 app.register_blueprint(user, url_prefix='/api/v1/user')
 app.register_blueprint(totp, url_prefix='/api/v1/totp')
-app.register_blueprint(ya_auth, url_prefix='/api/v1/ya_auth')
+app.register_blueprint(oauth, url_prefix='/api/v1/oauth')
 app.register_blueprint(auth, url_prefix='/api/v1/auth')
 app.register_blueprint(permission, url_prefix='/api/v1/permission')
 app.register_blueprint(rol, url_prefix='/api/v1/role')
@@ -132,7 +132,6 @@ docs.register(delete_roles, blueprint='rol')
 docs.register(check, blueprint='totp')
 docs.register(sync_check, blueprint='totp')
 docs.register(sync, blueprint='totp')
-docs.register(get_data, blueprint='auth_ya')
 docs.register(get_auth, blueprint='auth_ya')
 docs.register(set_auth, blueprint='auth_ya')
 
