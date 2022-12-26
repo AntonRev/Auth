@@ -7,7 +7,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 from webargs import fields
 
 from api.v1.msg_text import MsgText
-from config.config import Config
+from config.config import Config, config
 from db.jwt_db import jwt_db
 from models.schema import TokenSchema, RespSchema
 from services.auth import login_service, refresh_service, del_ua_in_user, signup_service
@@ -33,6 +33,13 @@ def login(**kwargs):
     ua = request.headers.get('User-Agent')
     msg = login_service(email, password, ua)
     return jsonify(msg)
+
+doc(description='Получить OPEN TOKEN JWT',
+     tags=['Authorization'])
+@auth.route('/open-token', methods=['GET', 'POST'])
+def token():
+    token = config.JWT_OPEN_KEY
+    return jsonify(token=token)
 
 
 @doc(description='Обновление токена. При запросе проверяется User-Agent в истории', tags=['Authorization'])
