@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = Field('123qwe', env='POSTGRES_PASSWORD')
     # JWT
     JWT_SECRET_KEY: str = Field('super-secret', env='JWT_SECRET_KEY')
+    JWT_OPEN_KEY: str = Field('super-secret', env='JWT_OPEN_KEY')
     # Jaeger
     HOST_JAEGER: str = Field('localhost', env='HOST_JAEGER')
     PORT_JAEGER: int = Field(6831, env='PORT_JAEGER')

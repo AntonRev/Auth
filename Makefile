@@ -3,7 +3,7 @@ dockerlocal:
 	docker-compose -f docker-compose.yaml -f docker-compose.override.yml up -d --build
 
 # Start jaeger server
-run jaeger:
+run_jaeger:
 	docker run -d -p6831:6831/udp -p16686:16686 jaegertracing/all-in-one:latest
 
 # Stop all dockerfile
@@ -17,7 +17,7 @@ docker_del:
 	docker-compose rm jaeger nginx postgres flask redis
 
 # first migration
-migration first:
+migration_first:
 	export FLASK_APP=app/app.py
 	flask db init
 	flask db migrate -m "Initial migration."
@@ -36,3 +36,7 @@ migration:
 	flask db init
 	flask db migrate
 	flask db upgrade
+
+# create jwt open and secret key
+create_jwt_key:
+	ssh-keygen -t rsa -b 4096 -m PEM -f jwtRS256.key
