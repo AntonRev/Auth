@@ -10,6 +10,9 @@ run jaeger:
 docker_stop:
 	docker-compose stop jaeger nginx postgres flask redis
 
+docker_stop_p:
+	docker-compose stop postgres
+
 docker_del:
 	docker-compose rm jaeger nginx postgres flask redis
 
@@ -26,3 +29,10 @@ flask_local:
 	export FLASK_APP=app/app.py
 	flask db upgrade
 	flask run
+
+# first migration
+migration:
+	export FLASK_APP=app/app.py
+	flask db init
+	flask db migrate
+	flask db upgrade

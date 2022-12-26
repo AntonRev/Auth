@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str = Field('super-secret', env='JWT_SECRET_KEY')
     # Jaeger
     HOST_JAEGER: str = Field('localhost', env='HOST_JAEGER')
+    PORT_JAEGER: int = Field(6831, env='PORT_JAEGER')
+    JAEGER_CONSOLE: bool = Field(False, env='JAEGER_CONSOLE')
+    ENABLE_TRACER: bool = Field(False, env='JAEGER_CONSOLE')
     # Yandex Auth
     CLIENT_ID: str = Field('3b33407b90004c1190e163fa373ad942', env='CLIENT_ID')
     CLIENT_SECRET: str = Field('14f0d9e392ae499a9dcdb2c46a3310ea', env='CLIENT_SECRET')

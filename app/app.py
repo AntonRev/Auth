@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 import click
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
-from flask import Flask
+from flask import Flask, request
 from flask_apispec.extension import FlaskApiSpec
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt, JWTManager, \
     set_access_cookies
@@ -13,10 +13,18 @@ from flask_migrate import Migrate
 from opentelemetry import trace
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 
+from api.v1.auth import auth, signup_post, login, logout, refresh
+from api.v1.permission import permission, add_perm, get_perm, change_perm, get_perms, add_perms, change_perms, \
+    get_perm_user, set_perm_user, delete_perm_user
+from api.v1.role import rol, get_role, add_role, change_role, delete_role, get_roles, set_roles, delete_roles
+from api.v1.totp import totp, check, sync_check, sync
+from api.v1.user import user, users, index
+from api.v1.ya_auth import ya_auth, get_data, get_auth, set_auth
+from config.config import config
 from config.tracer import configure_tracer
 from db.db import init_db, db, init_db_for_cli
 from db.jwt_db import jwt_db
-from models.db_models import User
+from models.db_models import User, create_partition
 
 app = Flask(__name__)
 log = logging.getLogger(__name__)
@@ -42,16 +50,17 @@ app.config.update({
 })
 docs = FlaskApiSpec(app, document_options=False)
 
-# @app.before_request
-# def before_request():
-#     request_id = request.headers.get('X-Request-Id')
-#     if not request_id:
-#         raise RuntimeError('request id is required')
+if config.ENABLE_TRACER:
+    @app.before_request()
+    def before_request():
+            request_id = request.headers.get('X-Request-Id')
+            if not request_id:
+                raise RuntimeError('request id is required')
 
-
-configure_tracer()
-FlaskInstrumentor().instrument_app(app)
-tracer = trace.get_tracer(__name__)
+if config.ENABLE_TRACER:
+    configure_tracer()
+    FlaskInstrumentor().instrument_app(app)
+    tracer = trace.get_tracer(__name__)
 
 
 # Creat superuser CLI
@@ -91,14 +100,6 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     return token_in_redis is not None
 
 
-from api.v1.user import user, users, index
-from api.v1.totp import totp, check, sync_check, sync
-from api.v1.ya_auth import ya_auth, get_data, get_auth, set_auth
-from api.v1.permission import permission, add_perm, get_perm, change_perm, get_perms, add_perms, change_perms, \
-    get_perm_user, set_perm_user, delete_perm_user
-from api.v1.role import rol, get_role, add_role, change_role, delete_role, get_roles, set_roles, delete_roles
-from api.v1.auth import auth, signup_post, login, logout, refresh
-
 app.register_blueprint(user, url_prefix='/api/v1/user')
 app.register_blueprint(totp, url_prefix='/api/v1/totp')
 app.register_blueprint(ya_auth, url_prefix='/api/v1/ya_auth')
@@ -137,7 +138,6 @@ docs.register(set_auth, blueprint='auth_ya')
 
 init_db(app)
 migrate = Migrate(app, db)
-
 
 @app.route('/api/v1/swagger_yaml', methods=['GET'])
 def swagger():

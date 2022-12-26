@@ -71,14 +71,14 @@ def check_user_exist(username):
     return False
 
 
-def signup_service(username, password, password2, ua) -> str:
+def signup_service(username, password, password2, ua, age) -> str:
     """Регистрация пользователя"""
     if password2 != password:
         return {'msg': MsgText.PASSWORDS_NOT_MATCH}
     if check_user_exist(username):
         return {'msg': MsgText.USER_IS_EXIST}
 
-    user = User(email=username, password=password)
+    user = User(email=username, password=password, age_user=age)
     db.session.add(user)
     db.session.commit()
     user = User.query.filter_by(email=username).first()

@@ -69,9 +69,9 @@ def signup_post(**kwargs):
     username = request.json.get("email", None)
     password = request.json.get("password1", None)
     password2 = request.json.get("password2", None)
-    password2 = request.json.get("age", None)
+    age = request.json.get("age", None)
     ua = request.headers.get('User-Agent')
-    msg = signup_service(username, password, password2, ua)
+    msg = signup_service(username, password, password2, ua, age)
     return jsonify(msg)
 
 
