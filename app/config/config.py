@@ -41,11 +41,11 @@ class Settings(BaseSettings):
                     'display': 'popup',
                     'dop_oaram': ''}
     VK_OAUTH = {'url': 'vk',
-                    'redirect_uri': 'https://localhost/api/v1/oauth/code',
-                    'client_id': 'client_id',
-                    'response_type': 'code',
-                    'display': 'popup',
-                    'dop_oaram': '&scope=4194304'}
+                'redirect_uri': 'https://localhost/api/v1/oauth/code',
+                'client_id': 'client_id',
+                'response_type': 'code',
+                'display': 'popup',
+                'dop_oaram': '&scope=4194304'}
 
 
 config = Settings()

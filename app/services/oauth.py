@@ -31,8 +31,10 @@ def set_auth_servie(self, auth_name):
           f'{param_dic["dop_param"]}'
     return url
 
+
 class OAuth():
     """Базовый класс дял OAuth"""
+
     def get_token_service(self, code):
         pass
 

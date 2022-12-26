@@ -14,17 +14,17 @@ from opentelemetry import trace
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 
 from api.v1.auth import auth, signup_post, login, logout, refresh
+from api.v1.oauth import oauth, get_auth, set_auth
 from api.v1.permission import permission, add_perm, get_perm, change_perm, get_perms, add_perms, change_perms, \
     get_perm_user, set_perm_user, delete_perm_user
 from api.v1.role import rol, get_role, add_role, change_role, delete_role, get_roles, set_roles, delete_roles
 from api.v1.totp import totp, check, sync_check, sync
 from api.v1.user import user, users, index
-from api.v1.oauth import oauth, get_auth, set_auth
 from config.config import config
 from config.tracer import configure_tracer
 from db.db import init_db, db, init_db_for_cli
 from db.jwt_db import jwt_db
-from models.db_models import User, create_partition
+from models.db_models import User
 
 app = Flask(__name__)
 log = logging.getLogger(__name__)
@@ -53,9 +53,9 @@ docs = FlaskApiSpec(app, document_options=False)
 if config.ENABLE_TRACER:
     @app.before_request()
     def before_request():
-            request_id = request.headers.get('X-Request-Id')
-            if not request_id:
-                raise RuntimeError('request id is required')
+        request_id = request.headers.get('X-Request-Id')
+        if not request_id:
+            raise RuntimeError('request id is required')
 
 if config.ENABLE_TRACER:
     configure_tracer()
@@ -137,6 +137,7 @@ docs.register(set_auth, blueprint='auth_ya')
 
 init_db(app)
 migrate = Migrate(app, db)
+
 
 @app.route('/api/v1/swagger_yaml', methods=['GET'])
 def swagger():
