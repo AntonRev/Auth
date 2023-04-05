@@ -1,12 +1,12 @@
 version: '3'
 services:
+
   redis:
     image: redis:7.0.5
-    expose:
-      - "6379"
     volumes:
       - ./config/redis/redis.conf:/redis.conf
     command: [ "redis-server", "/redis.conf" ]
+
   postgres:
     image: postgres:13.0-alpine
     volumes:
@@ -15,7 +15,8 @@ services:
       - "5432"
     restart: always
     env_file:
-      - .env_postgres
+      - .env
+
   nginx:
     image: nginx:1.23.2
     volumes:
@@ -25,11 +26,13 @@ services:
       - flask
     ports:
       - "80:80"
+
   jaeger:
     image: jaegertracing/all-in-one:latest
     ports:
       - "6831:6831/udp"
       - "16686:16686"
+
   flask:
     build: .
     environment:
@@ -37,7 +40,7 @@ services:
       ELASTIC_HOST: elastic
       CACHE_EXPIRE_IN_SECONDS: 300
       URL_HOST: 'flask'
-    ports:
+    expose:
       - '5000'
     depends_on:
       - redis
