@@ -17,7 +17,6 @@ log = logging.getLogger(__name__)
 
 @doc(description='Получить описание доступа', tags=['Permission'])
 @marshal_with(PermissionShema)
-@check_roles(roles=['admin'])
 @permission.route('/<perm_id>', methods=['GET'])
 def get_perm(perm_id):
     permissions_out = get_perm_service(perm_id)

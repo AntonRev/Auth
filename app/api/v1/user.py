@@ -38,7 +38,7 @@ def index():
     return jsonify(user_out)
 
 
-@doc(description='Страница с историей входов. Указываются только устройства скоторых заходили', tags=['User'])
+@doc(description='Страница с историей входов. Указываются только устройства с которых заходили', tags=['User'])
 @marshal_with(UserAgentShema())
 @user.route("/history", methods=["GET"])
 @jwt_required()

@@ -7,11 +7,10 @@ from models.db_models import Permission, Require
 
 
 def check_roles(roles=list):
-    """Проверка на доступ. Нужна роль у юзера"""
-
     def requared_role(fn):
         @wraps(fn)
         def wrappers(*arg, **kwargs):
+            """Проверка на доступ. Нужна роль у юзера"""
             roles.append('superadmin')
             verify_jwt_in_request()
             claim = get_jwt()
@@ -27,11 +26,10 @@ def check_roles(roles=list):
 
 
 def chek_all_permission(perm):
-    """Проверка на доступ. Нужны все доступы"""
-
     def requared_perm(fn):
         @wraps(fn)
         def wrapper(*arg, **kwargs):
+            """Проверка на доступ. Нужны все доступы"""
             verify_jwt_in_request()
             id = get_jwt_identity()
             req_perms = Require.query.filter_by(name=perm).all()

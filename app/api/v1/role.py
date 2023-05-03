@@ -61,7 +61,7 @@ def delete_role(role):
     return jsonify(msg=msg)
 
 
-@doc(description='Возвращает список ролей юзера. Не требуется проверка прав на просмотр', tags=['Role'])
+@doc(description='Возвращает список ролей юзера', tags=['Role'])
 @marshal_with(RoleSchema)
 @rol.route('/user/<user_id>', methods=['GET'])
 def get_roles(user_id):

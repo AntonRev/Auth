@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 client_id = config.CLIENT_ID
 
 
-def set_auth_servie(self, auth_name):
+def set_auth_servie(self, auth_name: str) -> str:
     if auth_name == "yandex":
         param_dic = config.YANDEX_OAUTH
     if auth_name == "vk":
@@ -56,14 +56,18 @@ class OAuth():
 
 
 class Yandex(OAuth):
-    def get_token_service(self, code):
+    """OAuth Яндекс"""
+
+    def get_token_service(self, code: str):
+        """Получить токен сервиса Яндекс"""
         url = 'https://oauth.yandex.ru'
         authorization = base64.b64encode(bytes(f'{config.CLIENT_ID}:{config.CLIENT_SECRET}', 'utf-8'))
         headers = {'Authorization': ("Basic " + authorization.decode("utf-8"))}
         response = requests.post(url=url, headers=headers, data={'grant_type': 'authorization_code', 'code': code}).json
         return response['access_token']
 
-    def get_data_service(self, token, ua):
+    def get_data_service(self, token: str, ua: str) -> None:
+        """Получить данные с сервиса Яндекс"""
         url = 'https://login.yandex.ru/info'
         headers = {'Authorization': f'OAuth {token}'}
         response = requests.options(url=url, headers=headers).json()
@@ -75,14 +79,17 @@ class Yandex(OAuth):
 
 
 class Vk(OAuth):
+    """OAuth ВКонтакте"""
     user_id = ''
 
-    def get_token_service(self, url: str):
+    def get_token_service(self, url: str) -> str:
+        """Получить токен сервиса ВК"""
         access_token = url.split('#')[1].split('&')[0].split('=')[1]
         self.user_id = url.split('#')[1].split('&')[-1].split('=')[1]
         return access_token
 
-    def get_data_service(self, token, ua):
+    def get_data_service(self, token: str, ua: str):
+        """Получить данные из ВК"""
         url = f'https://api.vk.com/method/users.get?user_id={self.user_id}&v=5.131'
         headers = {'Authorization': f'Bear {token}'}
         response = requests.options(url=url, headers=headers).json()["response"]

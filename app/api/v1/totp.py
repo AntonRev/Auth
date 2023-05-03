@@ -19,7 +19,6 @@ log = logging.getLogger(__name__)
 @totp.route('/set_two_factor', methods=['POST'])
 @jwt_required()
 def sync():
-    # Get ID in JWT token 
     verify_jwt_in_request()
     user_id = get_jwt_identity()
     tmpl = sync_service(user_id)
@@ -31,7 +30,6 @@ def sync():
 @ratelimit()
 @jwt_required()
 def sync_check():
-    # Get ID in JWT token 
     verify_jwt_in_request()
     user_id = get_jwt_identity()
     # Верифицируем полученный от пользователя код

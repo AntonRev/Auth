@@ -11,6 +11,7 @@ class MsgText(str, Enum):
     USER_IS_EXIST = 'User is exist.'
     PASSWORDS_NOT_MATCH = "Passwords don't match! Repeat the input."
     NOT_ACCSESS = 'Not accsess'
+
     # role & permission
     CREATE = 'Create'
     DELETE = 'Delete'

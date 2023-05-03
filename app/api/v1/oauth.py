@@ -26,13 +26,11 @@ def set_auth(auth_name):
     return redirect(url)
 
 
-@doc(description='Получение токена и получение данных',
-     tags=['OAuth'])
+@doc(description='Получение токена и получение данных', tags=['OAuth'])
 @oauth.route('/<auth_name>/<code>', methods=['GET'])
 @tracer
 def get_auth(auth_name, code):
     ua = request.headers.get('User-Agent')
-    NameOauth
     if auth_name == NameOauth.YANDEX:
         aoth = Yandex()
     if auth_name == NameOauth.VK:

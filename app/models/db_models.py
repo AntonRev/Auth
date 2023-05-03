@@ -26,6 +26,7 @@ def create_partition(target, connection, **kw) -> None:
 
 class UserAgent(db.Model):
     __tablename__ = 'ua'
+
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('user.id'))
     ua = db.Column(db.String(250))
@@ -39,6 +40,7 @@ class UserAgent(db.Model):
 
 class Role(db.Model):
     __tablename__ = "role"
+
     id = db.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, unique=True, nullable=False)
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(255))
@@ -52,6 +54,7 @@ class Role(db.Model):
 
 class RoleUser(db.Model):
     __tablename__ = "role_user"
+
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     role_id = db.Column(UUID(as_uuid=True), db.ForeignKey("role.id"), primary_key=True)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("user.id"), primary_key=True)
@@ -59,6 +62,7 @@ class RoleUser(db.Model):
 
 class Permission(db.Model):
     __tablename__ = "permission"
+
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = db.Column(db.String(80))
     description = db.Column(db.String(255))
@@ -72,6 +76,7 @@ class Permission(db.Model):
 
 class UserPermissions(db.Model):
     __tablename__ = "user_permissions"
+
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     permission_id = db.Column(UUID(as_uuid=True), db.ForeignKey("permission.id"), primary_key=True)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("user.id"), primary_key=True)
@@ -79,6 +84,7 @@ class UserPermissions(db.Model):
 
 class ReqPermissions(db.Model):
     __tablename__ = "req_permissions"
+
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     permission_id = db.Column(UUID(as_uuid=True), db.ForeignKey("permission.id"), primary_key=True)
     req_id = db.Column(UUID(as_uuid=True), db.ForeignKey("requare.id"), primary_key=True)
@@ -86,6 +92,7 @@ class ReqPermissions(db.Model):
 
 class Require(db.Model):
     __tablename__ = "requare"
+
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = db.Column(db.String(80))
     description = db.Column(db.String(255))
@@ -104,6 +111,7 @@ class User(db.Model):
                           'listeners': [('after_create', create_partition)],
                       }
                       )
+
     id = db.Column(UUID(as_uuid=True), primary_key=True, unique=True, default=uuid.uuid4, nullable=False)
     login = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(50), nullable=False)
@@ -128,6 +136,7 @@ class User(db.Model):
 
 class Totp(db.Model):
     __tablename__ = 'totp'
+
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     two_factor_secrets = db.Column(db.String(80), unique=True, nullable=True)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("user.id"), primary_key=True)
@@ -141,6 +150,7 @@ class Totp(db.Model):
 
 class Auth2(db.Model):
     __tablename__ = 'auth'
+
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('user.id'))
     auth_token = db.Column(db.String(250))

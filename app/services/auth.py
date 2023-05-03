@@ -21,6 +21,7 @@ jwt_blocklist = jwt_db
 
 
 def login_service(email: str, password: str, ua: str):
+    """Авторизация пользователя"""
     user = User.query.filter_by(email=email).first()
     if user is None:
         return {'msg': MsgText.INCORRECT_LOGIN}
@@ -33,6 +34,7 @@ def login_service(email: str, password: str, ua: str):
 
 
 def create_token(user) -> str:
+    """Выдача нового токена"""
     additional_claims = {"role": [x.name for x in user.role]}
     access_token = create_access_token(identity=user.id, additional_claims=additional_claims)
     refresh_token = create_refresh_token(identity=user.id, additional_claims=additional_claims)
@@ -40,7 +42,7 @@ def create_token(user) -> str:
 
 
 def refresh_service(id: uuid, ua: str, role: str) -> str:
-    """Выдача нового токена"""
+    """Обновление токена"""
     if check_ua_in_user(ua, id):
         return {'Error': MsgText.NOT_ACCSESS}
     return create_token_id(id, role)
@@ -53,7 +55,8 @@ def create_token_id(id, role) -> str:
     return {"access_token": access_token, "refresh_token": refresh_token}
 
 
-def check_ua_in_user(ua, id):
+def check_ua_in_user(ua: str, id: uuid):
+    """Проверка юзерагента в истории посещений"""
     if ua not in [x.ua for x in UserAgent.query.filter_by(user_id=id).all()]:
         return True
     return False
@@ -64,14 +67,14 @@ def del_ua_in_user(id: uuid, ua: str) -> None:
     UserAgent.query.filter_by(user_id=id, ua=ua).delete()
 
 
-def check_user_exist(username):
+def check_user_exist(username: str):
     """Проверка существования пользователя"""
     if User.query.filter_by(email=username).first() is not None:
         return True
     return False
 
 
-def signup_service(username, password, password2, ua, age) -> str:
+def signup_service(username: str, password: str, password2: str, ua: str, age: int) -> str:
     """Регистрация пользователя"""
     if password2 != password:
         return {'msg': MsgText.PASSWORDS_NOT_MATCH}
@@ -86,7 +89,7 @@ def signup_service(username, password, password2, ua, age) -> str:
     return create_token(user)
 
 
-def add_ua_user(ua, user):
+def add_ua_user(ua: str, user: str):
     """Добавляем UA к юзеру"""
     user_id = user.id
     if ua not in [x.ua for x in UserAgent.query.filter_by(user_id=user.id).all()]:

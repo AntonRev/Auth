@@ -34,15 +34,15 @@ def login(**kwargs):
     msg = login_service(email, password, ua)
     return jsonify(msg)
 
-doc(description='Получить OPEN TOKEN JWT',
-     tags=['Authorization'])
+
+@doc(description='Получить OPEN TOKEN JWT',
+    tags=['Authorization'])
 @auth.route('/open-token', methods=['GET', 'POST'])
 def token():
-    token = config.JWT_OPEN_KEY
-    return jsonify(token=token)
+    return jsonify(token=config.JWT_OPEN_KEY)
 
 
-@doc(description='Обновление токена. При запросе проверяется User-Agent в истории', tags=['Authorization'])
+@doc(description='Обновление токена.', tags=['Authorization'])
 @marshal_with(TokenSchema)
 @auth.route('/refresh', methods=['POST', 'GET'])
 @jwt_required(refresh=True)
@@ -56,7 +56,7 @@ def refresh(**kwargs):
 
 @doc(description='Выход пользователя', tags=['Authorization'])
 @marshal_with(RespSchema)
-@auth.route("/logout", methods=["DELETE"])
+@auth.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
     id = get_jwt_identity()
