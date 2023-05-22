@@ -79,7 +79,7 @@ def create_user(name, password):
 
 @app.after_request
 def refresh_expiring_jwts(response):
-    """Автоматическое бновление токена в cookie после запроса"""
+    """Автоматическое обновление токена в cookie после запроса"""
     try:
         exp_timestamp = get_jwt()["exp"]
         now = datetime.now(timezone.utc)
