@@ -16,6 +16,7 @@ API для получения авторизации, установки рол�
 ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Flask](https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white)
 ![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 ## Запуск
 
 Для запуска отдельно AuthAPI-сервиса можно использовать Dockerfile (предполагая, что у нас уже есть развёрнутый Postgres и прочая инфраструктура, и нужен только сам сервис) или через app.py. Используется порт 5000.
