@@ -13,12 +13,4 @@ def init_db(app: Flask):
     app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{config.POSTGRES_USER}:{config.POSTGRES_PASSWORD}' \
                                             f'@{config.POSTGRES_SERVER}/{config.POSTGRES_DB}'
     db.init_app(app)
-    app.app_context().push()
-    log.info("init_app")
-
-
-def init_db_for_cli(app: Flask):
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{config.POSTGRES_USER}:{config.POSTGRES_PASSWORD}' \
-                                            f'@{config.POSTGRES_SERVER}/{config.POSTGRES_DB}'
-    db.init_app(app)
     log.info("init_app")

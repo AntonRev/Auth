@@ -22,7 +22,7 @@ from api.v1.totp import totp, check, sync_check, sync
 from api.v1.user import user, users, index
 from config.config import config
 from config.tracer import configure_tracer
-from db.db import init_db, db, init_db_for_cli
+from db.db import init_db, db
 from db.jwt_db import jwt_db
 from models.db_models import User
 
@@ -71,7 +71,7 @@ def create_user(name, password):
     """Создание супер пользователя из командной строки"""
     with tracer.start_as_current_span('Create super admin'):
         log.info('Creat super user')
-        init_db_for_cli(app)
+        init_db(app)
         u = User(email=name, password=password, role="superadmin")
         db.session.add(u)
         db.session.commit()
@@ -98,7 +98,6 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     jti = jwt_payload["jti"]
     token_in_redis = jwt_blocklist.get(jti)
     return token_in_redis is not None
-
 
 # Добавление rout Api
 app.register_blueprint(user, url_prefix='/api/v1/user')
