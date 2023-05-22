@@ -31,7 +31,7 @@ def index_service(id: uuid) -> UserSchema:
     return user_out
 
 
-def history_service(id: uuid, page: str, per_page: str) -> list(UserAgent):
+def history_service(id: uuid, page: str, per_page: str):
     """Получить историю входов"""
     history = UserAgentShema(many=True)
     histor = UserAgent.query.filter_by(user_id=id).paginate(page=int(page),

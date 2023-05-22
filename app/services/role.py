@@ -1,8 +1,9 @@
 import logging
 import uuid
 
-from flask import Blueprint
+from flask import Blueprint, jsonify
 
+from api.v1.msg_text import MsgText
 from db.db import db
 from models.db_models import User, Role, Permission
 from models.schema import RoleSchema, PermissionShema
@@ -26,7 +27,7 @@ def add_rol_service(role: str, description: str) -> bool:
     role = Role(name=role, description=description)
     db.session.add(role)
     db.session.commit()
-    return True
+    return jsonify(role=role)
 
 
 def change_rol_service(role: str, description: str) -> bool:
@@ -35,20 +36,20 @@ def change_rol_service(role: str, description: str) -> bool:
     rol.description = description
     db.session.add(rol)
     db.session.commit()
-    return True
+    return jsonify(role=role)
 
 
 def delete_rol_service(role: str) -> bool:
     """Удалить роль"""
-    rol = Role.query.filter_by(name=role).first()
+    role = Role.query.filter_by(name=role).first()
     if rol is None:
-        return False
+        return jsonify(msg=MsgText.NOT_ACCSESS)
     try:
         db.session.delete(rol)
         db.session.commit()
     except:
-        return False
-    return True
+        return jsonify(msg=MsgText.NOT_ACCSESS)
+    return jsonify(msg=MsgText.DELETE)
 
 
 def get_ros_service(user_id: uuid) -> RoleSchema:
@@ -71,15 +72,15 @@ def set_roles_service(user_id: uuid, roles: str) -> None:
     user.role.append(rol)
     db.session.add(user)
     db.session.commit()
-
+    return jsonify(user=user)
 
 def delete_rols_service(user_id: uuid, roles: str) -> bool:
     """Удалить роли для юзера"""
     user = db.session.query(User).get(user_id)
     rol = Role.query.filter_by(name=roles).first()
     if rol is None:
-        return False
+        return jsonify(msg=MsgText.NOT_ACCSESS)
     user.role.remove(rol)
     db.session.add(user)
     db.session.commit()
-    return True
+    return jsonify(msg=MsgText.REMOVE)

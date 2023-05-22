@@ -8,7 +8,8 @@ from webargs import fields
 from api.v1.msg_text import MsgText
 from models.schema import PermissionShema, RequireShema, RespSchema
 from services.permission import get_perm_service, add_perm_service, change_perm_service, get_perms_service, \
-    add_perms_service, change_perms_service, get_perm_user_service, set_perm_user_service, delete_perm_user_service
+    add_perms_service, change_perms_service, get_perm_user_service, set_permission_from_user, \
+    delete_permission_from_user
 from utils.check import check_roles
 
 permission = Blueprint('permission', __name__)
@@ -19,6 +20,7 @@ log = logging.getLogger(__name__)
 @marshal_with(PermissionShema)
 @permission.route('/<perm_id>', methods=['GET'])
 def get_perm(perm_id):
+    """Получить описание доступа"""
     permissions_out = get_perm_service(perm_id)
     return jsonify(permissions_out)
 
@@ -29,11 +31,11 @@ def get_perm(perm_id):
 @check_roles(roles=['admin'])
 @permission.route('/<perm_name>', methods=['POST'])
 def add_perm(perm_name):
+    """Добавить доступы к роли"""
     params = request.json
     role = params['role_name']
     perm = params['description']
-    msg = MsgText.SUCCESS if add_perm_service(perm_name, role, perm) else MsgText.NOT_ACCSESS
-    return jsonify(msg=msg)
+    return add_perm_service(perm_name, role, perm)
 
 
 @doc(description='Изменить описание доступа', tags=['Permission'])
@@ -63,8 +65,7 @@ def get_perms(perm_id):
 def add_perms(perm_name):
     """Установить требуемые права доступа"""
     params = request.json
-    msg = MsgText.SUCCESS if add_perms_service(perm_name, params['description']) else MsgText.NOT_ACCSESS
-    return jsonify(msg=msg)
+    return add_perms_service(perm_name, params['description'])
 
 
 @doc(description='Изменить описание прав доступа', tags=['Permission'])
@@ -74,8 +75,7 @@ def add_perms(perm_name):
 def change_perms(perm_id):
     """Изменить правa доступа"""
     params = request.json
-    msg = MsgText.SUCCESS if change_perms_service(perm_id, params) else MsgText.NOT_ACCSESS
-    return jsonify(msg=msg)
+    return change_perms_service(perm_id, params)
 
 
 @doc(description='Возвращает список доступов юзера', tags=['Permission'])
@@ -95,8 +95,7 @@ def get_perm_user(user_id):
 def set_perm_user(user_id):
     """Добавить доступ для юзера"""
     permission_name = request.json['permissions']
-    msg = MsgText.ADD_PERMISSION if set_perm_user_service(user_id, permission_name) else MsgText.PERMISSIONS_NOT_FOUND
-    return jsonify(msg=msg)
+    return set_permission_from_user(user_id, permission_name)
 
 
 @doc(description='Удалить доступ для юзера', tags=['Permission'])
@@ -106,8 +105,7 @@ def set_perm_user(user_id):
 @permission.route('/user/<user_id>', methods=['DELETE'])
 def delete_perm_user(user_id):
     permission_name = request.json['permissions']
-    msg = MsgText.REMOVE_PERMISSION if delete_perm_user_service(user_id, permission_name) else MsgText.PERMISSIONS_NOT_FOUND
-    return jsonify(msg=msg)
+    return delete_permission_from_user(user_id, permission_name)
 
 
 @permission.errorhandler(Exception)

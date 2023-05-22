@@ -140,20 +140,20 @@ init_db(app)
 migrate = Migrate(app, db)
 
 
-@app.route('/api/v1/swagger_yaml', methods=['GET'])
-def swagger():
-    return docs.spec.to_yaml()
-
-
-@app.route('/api/v1/swagger_dict', methods=['GET'])
-def swagger1():
-    return docs.spec.to_dict()
-
-
-@app.route('/api/v1/swagger_ui', methods=['GET'])
-def swagger2():
-    return docs.swagger_ui()
-
+# @app.route('/api/v1/swagger_yaml', methods=['GET'])
+# def swagger():
+#     return docs.spec.to_yaml()
+#
+#
+# @app.route('/api/v1/swagger_dict', methods=['GET'])
+# def swagger1():
+#     return docs.spec.to_dict()
+#
+#
+# @app.route('/api/v1/swagger_ui', methods=['GET'])
+# def swagger2():
+#     return docs.swagger_ui()
+#
 
 def main():
     app.run(debug=True, port=5001, host='0.0.0.0')

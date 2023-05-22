@@ -1,8 +1,9 @@
 import logging
 import uuid
 
-from flask import Blueprint
+from flask import Blueprint, jsonify
 
+from api.v1.msg_text import MsgText
 from db.db import db
 from models.db_models import User, Role, Permission, Require
 from models.schema import PermissionShema, RequireShema
@@ -19,12 +20,12 @@ def get_perm_service(perm_id: uuid) -> PermissionShema:
 
 
 def add_perm_service(perm_name, role_name, description) -> bool:
-    """Добавить доступы юзеру"""
+    """Добавить доступы к роли"""
     role = Role.query.filter_by(name=role_name).first()
     perm = Permission(name=perm_name, description=description, role_id=role.id)
     db.session.add(perm)
     db.session.commit()
-    return True
+    return jsonify(permission=perm)
 
 
 def change_perm_service(perm_id: uuid, description: str) -> RequireShema:
@@ -49,7 +50,7 @@ def add_perms_service(perm_name: str, description: str) -> bool:
     required = Require(name=perm_name, description=description)
     db.session.add(required)
     db.session.commit()
-    return True
+    return jsonify(required=required)
 
 
 def change_perms_service(perm_id: uuid, params: dict) -> bool:
@@ -58,7 +59,7 @@ def change_perms_service(perm_id: uuid, params: dict) -> bool:
     required.id = perm_id
     db.session.add(required)
     db.session.commit()
-    return True
+    return jsonify(required=required)
 
 
 def get_perm_user_service(user_id: uuid) -> PermissionShema:
@@ -68,25 +69,25 @@ def get_perm_user_service(user_id: uuid) -> PermissionShema:
     return roles_out
 
 
-def set_perm_user_service(user_id: uuid, permissions: str) -> bool:
+def set_permission_from_user(user_id: uuid, permissions: str) -> bool:
     """Установить настройки доступа для юзера"""
     user = db.session.query(User).get(user_id)
     permission = Permission.query.filter_by(name=permissions).first()
     if permission is None:
-        return False
+        jsonify(msg=MsgText.ADD_PERMISSION)
     user.permission.append(permission)
     db.session.add(user)
     db.session.commit()
-    return True
+    return jsonify(user=user)
 
 
-def delete_perm_user_service(user_id, permissions) -> bool:
+def delete_permission_from_user(user_id, permissions) -> bool:
     """Удалить настройки доступа для юзера"""
     user = db.session.query(User).get(user_id)
     permission = Permission.query.filter_by(name=permissions).first()
     if permission is None:
-        return False
+        return jsonify(msg=MsgText.PERMISSIONS_NOT_FOUND)
     user.permission.remove(permission)
     db.session.add(user)
     db.session.commit()
-    return True
+    return jsonify(msg=MsgText.REMOVE_PERMISSION)

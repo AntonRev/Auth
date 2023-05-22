@@ -21,7 +21,7 @@ ACCESS_EXPIRES = Config().JWT_ACCESS_TOKEN_EXPIRES
 jwt_blocklist = jwt_db
 
 
-@doc(description='Вход пользователя. При включеной 2 факторной авторизации перенапраляет на запрос пароля',
+@doc(description='Авторизация пользователя. При включеной 2 факторной авторизации перенапраляет на запрос пароля',
      tags=['Authorization'])
 @use_kwargs({'email': fields.Str(), 'password': fields.Str()})
 @marshal_with(TokenSchema)
@@ -33,14 +33,14 @@ def login(**kwargs):
     email = request.json.get('email', None)
     password = request.json.get('password', None)
     ua = request.headers.get('User-Agent')
-    msg = login_service(email, password, ua)
-    return jsonify(msg)
+    return login_service(email, password, ua)
 
 
 @doc(description='Получить OPEN TOKEN JWT',
-    tags=['Authorization'])
+     tags=['Authorization'])
 @auth.route('/open-token', methods=['GET', 'POST'])
 def get_open_token():
+    """Получить OPEN TOKEN JWT'"""
     return jsonify(token=config.JWT_OPEN_KEY)
 
 
@@ -53,8 +53,7 @@ def refresh(**kwargs):
     ua = request.headers.get('User-Agent')
     id = get_jwt_identity()
     role = get_jwt()['role']
-    msg = refresh_service(id, ua, role)
-    return jsonify(msg)
+    return refresh_service(id, ua, role)
 
 
 @doc(description='Выход пользователя', tags=['Authorization'])
@@ -83,8 +82,7 @@ def signup_post(**kwargs):
     password2 = request.json.get("password2", None)
     age = request.json.get("age", None)
     ua = request.headers.get('User-Agent')
-    msg = signup_service(username, password, password2, ua, age)
-    return jsonify(msg)
+    return signup_service(username, password, password2, ua, age)
 
 
 @auth.errorhandler(422)

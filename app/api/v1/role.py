@@ -34,10 +34,7 @@ def get_role(role_name: str):
 def add_role(role: str):
     """Добавить новую роль"""
     description = request.args.get('description', default=None)
-    msg = MsgText.NOT_ACCSESS
-    if add_rol_service(role, description):
-        msg = MsgText.CREATE
-    return jsonify(msg=msg)
+    return add_rol_service(role, description)
 
 
 @doc(description='Изменить роль', tags=['Role'])
@@ -48,10 +45,7 @@ def add_role(role: str):
 def change_role(role: str):
     """Изменить роль"""
     description = request.json['description']
-    msg = MsgText.NOT_ACCSESS
-    if change_rol_service(role, description):
-        msg = MsgText.CREATE
-    return jsonify(msg=msg)
+    return change_rol_service(role, description)
 
 
 @doc(description='Удалить роль по названию', tags=['Role'])
@@ -59,10 +53,8 @@ def change_role(role: str):
 @marshal_with(RespSchema)
 @rol.route('/<role>', methods=['DELETE'])
 def delete_role(role: str):
-    msg = MsgText.NOT_ACCSESS
-    if delete_rol_service(role):
-        msg = MsgText.DELETE
-    return jsonify(msg=msg)
+    """Удаление роли"""
+    return delete_rol_service(role)
 
 
 @doc(description='Возвращает список ролей юзера', tags=['Role'])
@@ -82,9 +74,7 @@ def get_roles(user_id: uuid4):
 def set_roles(user_id: uuid4):
     """Добавить роль для юзера"""
     roles = request.json['role']
-    if set_roles_service(user_id, roles):
-        return jsonify(msg=MsgText.ADD)
-    return jsonify(msg=MsgText.NOT_ACCSESS)
+    return set_roles_service(user_id, roles)
 
 
 @doc(description='Удалить роль у юзера', tags=['Role'])
@@ -95,10 +85,7 @@ def set_roles(user_id: uuid4):
 def delete_roles(user_id: uuid4):
     """Удалить роль у юзера"""
     roles = request.json['role']
-    msg = MsgText.NOT_ACCSESS
-    if delete_rols_service(user_id, roles):
-        msg = MsgText.REMOVE
-    return jsonify(msg=msg)
+    return delete_rols_service(user_id, roles)
 
 
 @rol.errorhandler(Exception)
