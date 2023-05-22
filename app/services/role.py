@@ -11,7 +11,7 @@ rol = Blueprint('rol', __name__)
 log = logging.getLogger(__name__)
 
 
-def get_permissions(role_name: str):
+def get_permissions(role_name: str) -> PermissionShema:
     """Получить доступы по роли"""
     role = Role.query.filter_by(name=role_name).first()
     if role is None:
@@ -21,7 +21,7 @@ def get_permissions(role_name: str):
     return permissions_out
 
 
-def add_rol_service(role: str, description: str):
+def add_rol_service(role: str, description: str) -> bool:
     """Создать роль"""
     role = Role(name=role, description=description)
     db.session.add(role)
@@ -29,7 +29,7 @@ def add_rol_service(role: str, description: str):
     return True
 
 
-def change_rol_service(role: str, description: str):
+def change_rol_service(role: str, description: str) -> bool:
     """Изменить роль"""
     rol = Role.query.filter_by(name=role).first()
     rol.description = description
@@ -41,15 +41,14 @@ def change_rol_service(role: str, description: str):
 def delete_rol_service(role: str) -> bool:
     """Удалить роль"""
     rol = Role.query.filter_by(name=role).first()
+    if rol is None:
+        return False
     try:
-        if rol is None:
-            return False
         db.session.delete(rol)
         db.session.commit()
     except:
         return False
     return True
-
 
 
 def get_ros_service(user_id: uuid) -> RoleSchema:
@@ -74,7 +73,7 @@ def set_roles_service(user_id: uuid, roles: str) -> None:
     db.session.commit()
 
 
-def delete_rols_service(user_id: uuid, roles: str):
+def delete_rols_service(user_id: uuid, roles: str) -> bool:
     """Удалить роли для юзера"""
     user = db.session.query(User).get(user_id)
     rol = Role.query.filter_by(name=roles).first()
