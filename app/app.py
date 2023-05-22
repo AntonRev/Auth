@@ -99,6 +99,7 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     token_in_redis = jwt_blocklist.get(jti)
     return token_in_redis is not None
 
+
 # Добавление rout Api
 app.register_blueprint(user, url_prefix='/api/v1/user')
 app.register_blueprint(totp, url_prefix='/api/v1/totp')

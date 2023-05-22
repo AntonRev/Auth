@@ -1,12 +1,11 @@
 import http
 import logging
 
-from flask import jsonify, request, Blueprint
+from flask import jsonify, request, Blueprint, Response
 from flask_apispec import use_kwargs, doc, marshal_with
 from webargs import fields
 
-from api.v1.msg_text import MsgText
-from models.schema import PermissionShema, RequireShema, RespSchema
+from models.swagger_schema import PermissionShema, RequireShema, RespSchema, UserSchema
 from services.permission import get_perm_service, add_perm_service, change_perm_service, get_perms_service, \
     add_perms_service, change_perms_service, get_perm_user_service, set_permission_from_user, \
     delete_permission_from_user
@@ -26,7 +25,7 @@ def get_perm(perm_id):
 
 
 @doc(description='Создать новый доступ', tags=['Permission'])
-@marshal_with(RespSchema)
+@marshal_with(PermissionShema)
 @use_kwargs({'description': fields.Str()})
 @check_roles(roles=['admin'])
 @permission.route('/<perm_name>', methods=['POST'])
@@ -58,7 +57,7 @@ def get_perms(perm_id):
 
 
 @doc(description='Установить требуемые права доступа', tags=['Permission'])
-@marshal_with(RespSchema)
+@marshal_with(RequireShema)
 @use_kwargs({'description': fields.Str()})
 @check_roles(roles=['admin'])
 @permission.route('/required/<perm_name>', methods=['POST'])
@@ -69,7 +68,7 @@ def add_perms(perm_name):
 
 
 @doc(description='Изменить описание прав доступа', tags=['Permission'])
-@marshal_with(RespSchema)
+@marshal_with(RequireShema)
 @check_roles(roles=['admin'])
 @permission.route('/required/<perm_id>', methods=['PUT'])
 def change_perms(perm_id):
@@ -88,11 +87,11 @@ def get_perm_user(user_id):
 
 
 @doc(description='Добавить доступ для юзера', tags=['Permission'])
-@marshal_with(RespSchema)
+@marshal_with(UserSchema)
 @use_kwargs({'permissions': fields.Str()})
 @check_roles(roles=['admin'])
 @permission.route('/user/<user_id>', methods=['POST'])
-def set_perm_user(user_id):
+def set_perm_user(user_id) -> Response:
     """Добавить доступ для юзера"""
     permission_name = request.json['permissions']
     return set_permission_from_user(user_id, permission_name)

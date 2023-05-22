@@ -1,12 +1,12 @@
 import logging
 import uuid
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, Response
 
 from api.v1.msg_text import MsgText
 from db.db import db
 from models.db_models import User, Role, Permission, Require
-from models.schema import PermissionShema, RequireShema
+from models.swagger_schema import PermissionShema, RequireShema
 
 permission = Blueprint('permission', __name__)
 log = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ def get_perm_service(perm_id: uuid) -> PermissionShema:
     return permissions_out
 
 
-def add_perm_service(perm_name, role_name, description) -> bool:
+def add_perm_service(perm_name, role_name, description) -> Response:
     """Добавить доступы к роли"""
     role = Role.query.filter_by(name=role_name).first()
     perm = Permission(name=perm_name, description=description, role_id=role.id)
@@ -45,7 +45,7 @@ def get_perms_service(perm_id: uuid) -> [RequireShema]:
     return require_out
 
 
-def add_perms_service(perm_name: str, description: str) -> bool:
+def add_perms_service(perm_name: str, description: str) -> Response:
     """Создать новые настройки доступа"""
     required = Require(name=perm_name, description=description)
     db.session.add(required)
@@ -53,7 +53,7 @@ def add_perms_service(perm_name: str, description: str) -> bool:
     return jsonify(required=required)
 
 
-def change_perms_service(perm_id: uuid, params: dict) -> bool:
+def change_perms_service(perm_id: uuid, params: dict) -> Response:
     """Изменить настройки доступа"""
     required = Require(**params)
     required.id = perm_id
@@ -69,7 +69,7 @@ def get_perm_user_service(user_id: uuid) -> PermissionShema:
     return roles_out
 
 
-def set_permission_from_user(user_id: uuid, permissions: str) -> bool:
+def set_permission_from_user(user_id: uuid, permissions: str) -> Response:
     """Установить настройки доступа для юзера"""
     user = db.session.query(User).get(user_id)
     permission = Permission.query.filter_by(name=permissions).first()
@@ -81,7 +81,7 @@ def set_permission_from_user(user_id: uuid, permissions: str) -> bool:
     return jsonify(user=user)
 
 
-def delete_permission_from_user(user_id, permissions) -> bool:
+def delete_permission_from_user(user_id, permissions) -> Response:
     """Удалить настройки доступа для юзера"""
     user = db.session.query(User).get(user_id)
     permission = Permission.query.filter_by(name=permissions).first()

@@ -6,7 +6,7 @@ from flask import Blueprint, jsonify
 from api.v1.msg_text import MsgText
 from db.db import db
 from models.db_models import User, Role, Permission
-from models.schema import RoleSchema, PermissionShema
+from models.swagger_schema import RoleSchema, PermissionShema
 
 rol = Blueprint('rol', __name__)
 log = logging.getLogger(__name__)
@@ -73,6 +73,7 @@ def set_roles_service(user_id: uuid, roles: str) -> None:
     db.session.add(user)
     db.session.commit()
     return jsonify(user=user)
+
 
 def delete_rols_service(user_id: uuid, roles: str) -> bool:
     """Удалить роли для юзера"""

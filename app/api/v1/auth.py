@@ -1,7 +1,7 @@
 import http
 import logging
 
-from flask import jsonify, request, Blueprint
+from flask import jsonify, request, Blueprint, Response
 from flask_apispec import use_kwargs, doc, marshal_with
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 from webargs import fields
@@ -9,7 +9,7 @@ from webargs import fields
 from api.v1.msg_text import MsgText
 from config.config import Config, config
 from db.jwt_db import jwt_db
-from models.schema import TokenSchema, RespSchema
+from models.swagger_schema import TokenSchema, RespSchema
 from services.auth import login_service, refresh_service, del_ua_in_user, signup_service
 from utils.rate_limit import ratelimit
 
@@ -24,10 +24,10 @@ jwt_blocklist = jwt_db
 @doc(description='Авторизация пользователя. При включеной 2 факторной авторизации перенапраляет на запрос пароля',
      tags=['Authorization'])
 @use_kwargs({'email': fields.Str(), 'password': fields.Str()})
-@marshal_with(TokenSchema)
+@marshal_with(TokenSchema())
 @auth.route('/login', methods=['POST'])
 @ratelimit()
-def login(**kwargs):
+def login(**kwargs) -> Response:
     """Вход пользователя
     При включеной 2-факторной авторизации перенапраляет на запрос пароля"""
     email = request.json.get('email', None)
@@ -38,17 +38,18 @@ def login(**kwargs):
 
 @doc(description='Получить OPEN TOKEN JWT',
      tags=['Authorization'])
+@marshal_with(TokenSchema(only=('access_token',)))
 @auth.route('/open-token', methods=['GET', 'POST'])
-def get_open_token():
+def get_open_token() -> Response:
     """Получить OPEN TOKEN JWT'"""
     return jsonify(token=config.JWT_OPEN_KEY)
 
 
 @doc(description='Обновление токена.', tags=['Authorization'])
-@marshal_with(TokenSchema)
+@marshal_with(TokenSchema())
 @auth.route('/refresh', methods=['POST', 'GET'])
 @jwt_required(refresh=True)
-def refresh(**kwargs):
+def refresh(**kwargs) -> Response:
     """Обновление токена"""
     ua = request.headers.get('User-Agent')
     id = get_jwt_identity()
@@ -57,7 +58,7 @@ def refresh(**kwargs):
 
 
 @doc(description='Выход пользователя', tags=['Authorization'])
-@marshal_with(RespSchema)
+@marshal_with(RespSchema())
 @auth.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
@@ -72,7 +73,7 @@ def logout():
 
 @doc(description='Регистрация пользователя', tags=['Authorization'])
 @use_kwargs({'email': fields.Str(), 'password1': fields.Str(), 'password2': fields.Str(), 'age': fields.Int()})
-@marshal_with(TokenSchema)
+@marshal_with(TokenSchema())
 @auth.route('/signup', methods=['POST'])
 @ratelimit()
 def signup_post(**kwargs):

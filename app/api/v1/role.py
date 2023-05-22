@@ -6,8 +6,7 @@ from flask import jsonify, request, Blueprint
 from flask_apispec import use_kwargs, doc, marshal_with
 from webargs import fields
 
-from api.v1.msg_text import MsgText
-from models.schema import PermissionShema, RoleSchema, RespSchema
+from models.swagger_schema import PermissionShema, RoleSchema, RespSchema, UserSchema
 from services.role import get_permissions, add_rol_service, change_rol_service, delete_rol_service, get_ros_service, \
     set_roles_service, delete_rols_service
 from utils.check import check_roles
@@ -17,7 +16,7 @@ log = logging.getLogger(__name__)
 
 
 @doc(description='Возвращает описание и список доступов для роли', tags=['Role'])
-@marshal_with(PermissionShema)
+@marshal_with(PermissionShema(many=True))
 @check_roles(roles=['admin'])
 @rol.route('/<role_name>', methods=['GET'])
 def get_role(role_name: str):
@@ -28,7 +27,7 @@ def get_role(role_name: str):
 
 @doc(description='Добавить новую роль', tags=['Role'])
 @check_roles(roles=['admin'])
-@marshal_with(RespSchema)
+@marshal_with(RoleSchema())
 @use_kwargs({'description': fields.Str()})
 @rol.route('/<role>', methods=['POST'])
 def add_role(role: str):
@@ -38,7 +37,7 @@ def add_role(role: str):
 
 
 @doc(description='Изменить роль', tags=['Role'])
-@marshal_with(RespSchema)
+@marshal_with(RoleSchema())
 @use_kwargs({'description': fields.Str()})
 @check_roles(roles=['admin'])
 @rol.route('/<role>', methods=['PUT'])
@@ -50,7 +49,7 @@ def change_role(role: str):
 
 @doc(description='Удалить роль по названию', tags=['Role'])
 @check_roles(roles=['admin'])
-@marshal_with(RespSchema)
+@marshal_with(RespSchema())
 @rol.route('/<role>', methods=['DELETE'])
 def delete_role(role: str):
     """Удаление роли"""
@@ -58,7 +57,7 @@ def delete_role(role: str):
 
 
 @doc(description='Возвращает список ролей юзера', tags=['Role'])
-@marshal_with(RoleSchema)
+@marshal_with(RoleSchema(many=True))
 @rol.route('/user/<user_id>', methods=['GET'])
 def get_roles(user_id: uuid4):
     """Возвращает список ролей юзера"""
@@ -67,7 +66,7 @@ def get_roles(user_id: uuid4):
 
 
 @doc(description='Добавить роль для юзера', tags=['Role'])
-@marshal_with(RespSchema)
+@marshal_with(UserSchema())
 @use_kwargs({'role': fields.Str()})
 @check_roles(roles=['admin'])
 @rol.route('/user/<user_id>', methods=['POST'])
@@ -78,7 +77,7 @@ def set_roles(user_id: uuid4):
 
 
 @doc(description='Удалить роль у юзера', tags=['Role'])
-@marshal_with(RespSchema)
+@marshal_with(UserSchema())
 @use_kwargs({'role': fields.Str()})
 @check_roles(roles=['admin'])
 @rol.route('/user/<user_id>', methods=['DELETE'])

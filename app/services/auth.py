@@ -1,7 +1,7 @@
 import logging
 import uuid
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, Response
 from flask_jwt_extended import create_access_token, create_refresh_token
 from werkzeug.security import check_password_hash
 
@@ -20,7 +20,7 @@ ACCESS_EXPIRES = Config().JWT_ACCESS_TOKEN_EXPIRES
 jwt_blocklist = jwt_db
 
 
-def login_service(email: str, password: str, ua: str):
+def login_service(email: str, password: str, ua: str) -> Response:
     """Авторизация пользователя"""
     user = User.query.filter_by(email=email).first()
     if user is None:
@@ -33,7 +33,7 @@ def login_service(email: str, password: str, ua: str):
     return jsonify(create_token(user))
 
 
-def create_token(user: User):
+def create_token(user: User) -> Response:
     """Выдача нового токена"""
     additional_claims = {"role": [x.name for x in user.role]}
     access_token = create_access_token(identity=user.id, additional_claims=additional_claims)
@@ -41,21 +41,21 @@ def create_token(user: User):
     return jsonify(access_token=access_token, refresh_token=refresh_token)
 
 
-def refresh_service(id: uuid, ua: str, role: str) -> str:
+def refresh_service(id: uuid, ua: str, role: str) -> Response:
     """Обновление токена"""
     if check_ua_in_history_user(ua, id):
         return jsonify(Error=MsgText.NOT_ACCSESS)
     return create_token_id(id, role)
 
 
-def create_token_id(id, role) -> str:
+def create_token_id(id, role) -> Response:
     additional_claims = {'role': role}
     access_token = create_access_token(identity=id, additional_claims=additional_claims)
     refresh_token = create_refresh_token(identity=id, additional_claims=additional_claims)
     return jsonify(access_token=access_token, refresh_token=refresh_token)
 
 
-def check_ua_in_history_user(ua: str, id: uuid):
+def check_ua_in_history_user(ua: str, id: uuid) -> bool:
     """Проверка юзерагента в истории посещений"""
     if ua not in [x.ua for x in UserAgent.query.filter_by(user_id=id).all()]:
         return True
@@ -67,14 +67,14 @@ def del_ua_in_user(id: uuid, ua: str) -> None:
     UserAgent.query.filter_by(user_id=id, ua=ua).delete()
 
 
-def check_user_exist(username: str):
+def check_user_exist(username: str) -> bool:
     """Проверка существования пользователя"""
     if User.query.filter_by(email=username).first() is not None:
         return True
     return False
 
 
-def signup_service(username: str, password: str, password2: str, ua: str, age: int) -> str:
+def signup_service(username: str, password: str, password2: str, ua: str, age: int) -> Response:
     """Регистрация пользователя"""
     if password2 != password:
         return jsonify(msg=MsgText.PASSWORDS_NOT_MATCH)
