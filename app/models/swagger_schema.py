@@ -10,7 +10,7 @@ class UserSchema(SQLAlchemyAutoSchema):
         model = User
 
     password = fields.Str()
-    email = fields.Str()  # fields.Email
+    email = fields.Email()
 
 
 class RoleSchema(SQLAlchemyAutoSchema):

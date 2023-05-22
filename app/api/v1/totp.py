@@ -6,7 +6,7 @@ from flask_jwt_extended import jwt_required, verify_jwt_in_request, get_jwt_iden
 from webargs import fields
 
 from api.v1.msg_text import MsgText
-from models.schema import TokenSchema
+from models.swagger_schema import TokenSchema, RespSchema
 from services.totp import sync_service, sync_check_totp, check_totp_service
 from utils.rate_limit import ratelimit
 
@@ -16,10 +16,11 @@ log = logging.getLogger(__name__)
 
 @doc(description='Установить 2 факторную авторизацию для зарегестрированого пользователя, Возвращает шаблон с QR',
      tags=['TOTP'])
+@marshal_with(RespSchema(), code=302)
 @totp.route('/set_two_factor', methods=['POST'])
 @jwt_required()
-def sync():
-    """Установить 2 факторную авторизацию для зарегестрированого пользователя"""
+def sync() -> str:
+    """Установить 2-факторную авторизацию для зарегестрированого пользователя"""
     verify_jwt_in_request()
     user_id = get_jwt_identity()
     tmpl = sync_service(user_id)
@@ -29,6 +30,7 @@ def sync():
 @doc(description='Проверка кода при синхронизации с TOPT приложением', tags=['TOTP'])
 @totp.route("/sync", methods=['POST'])
 @ratelimit()
+@marshal_with(RespSchema(), code=302)
 @jwt_required()
 def sync_check():
     """Проверка кода при синхронизации с TOPT приложением"""

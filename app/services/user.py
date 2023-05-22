@@ -5,7 +5,7 @@ from flask import Blueprint
 
 from db.jwt_db import jwt_db
 from models.db_models import User, UserAgent
-from models.schema import UserSchema, UserAgentShema
+from models.swagger_schema import UserSchema, UserAgentShema
 
 user = Blueprint('user', __name__)
 log = logging.getLogger(__name__)

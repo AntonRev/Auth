@@ -6,7 +6,7 @@ from flask_apispec import doc, marshal_with
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from db.jwt_db import jwt_db
-from models.schema import UserSchema, UserAgentShema
+from models.swagger_schema import UserSchema, UserAgentShema
 from services.user import users_service, index_service, history_service
 
 user = Blueprint('user', __name__)

@@ -2,7 +2,7 @@ import logging
 import uuid
 
 import pyotp
-from flask import Blueprint
+from flask import Blueprint, Response, jsonify
 
 from api.v1.msg_text import MsgText
 from db.db import db
@@ -46,11 +46,11 @@ def sync_check_totp(user_id: uuid, code: str) -> bool:
     return True
 
 
-def check_totp_service(email: str, code: str) -> str:
+def check_totp_service(email: str, code: str) -> Response:
     """Проверка кода при авторизации и выдача токенов"""
     user = User.query.filter_by(email=email).first()
     secrets = user.two_factor_secrets
     totp = pyotp.TOTP(secrets[-1].two_factor_secrets)
     if not totp.verify(code):
-        return {"msg": MsgText.BED_CODE}
+        return jsonify(msg=MsgText.BED_CODE)
     return create_token_id(user.id, user.role)
