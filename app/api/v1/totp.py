@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 @totp.route('/set_two_factor', methods=['POST'])
 @jwt_required()
 def sync():
+    """Установить 2 факторную авторизацию для зарегестрированого пользователя"""
     verify_jwt_in_request()
     user_id = get_jwt_identity()
     tmpl = sync_service(user_id)
@@ -30,9 +31,9 @@ def sync():
 @ratelimit()
 @jwt_required()
 def sync_check():
+    """Проверка кода при синхронизации с TOPT приложением"""
     verify_jwt_in_request()
     user_id = get_jwt_identity()
-    # Верифицируем полученный от пользователя код
     code = request.json['code']
     if sync_check_totp(user_id, code):
         return redirect(url_for('user.index'))
@@ -45,6 +46,7 @@ def sync_check():
 @ratelimit()
 @totp.route('/check/<email>', methods=['POST'])
 def check(email: str):
+    """Проверка кода при авторизации и выдача токенов"""
     code = request.json['code']
     msg = check_totp_service(email, code)
     return jsonify(msg)

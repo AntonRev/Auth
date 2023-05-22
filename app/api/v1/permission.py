@@ -61,10 +61,9 @@ def get_perms(perm_id):
 @check_roles(roles=['admin'])
 @permission.route('/required/<perm_name>', methods=['POST'])
 def add_perms(perm_name):
+    """Установить требуемые права доступа"""
     params = request.json
-    msg = MsgText.SUCCESS
-    if not add_perms_service(perm_name, params['description']):
-        msg = MsgText.NOT_ACCSESS
+    msg = MsgText.SUCCESS if add_perms_service(perm_name, params['description']) else MsgText.NOT_ACCSESS
     return jsonify(msg=msg)
 
 
@@ -73,10 +72,9 @@ def add_perms(perm_name):
 @check_roles(roles=['admin'])
 @permission.route('/required/<perm_id>', methods=['PUT'])
 def change_perms(perm_id):
+    """Изменить правa доступа"""
     params = request.json
-    msg = MsgText.SUCCESS
-    if not change_perms_service(perm_id, params):
-        msg = MsgText.NOT_ACCSESS
+    msg = MsgText.SUCCESS if change_perms_service(perm_id, params) else MsgText.NOT_ACCSESS
     return jsonify(msg=msg)
 
 
@@ -84,6 +82,7 @@ def change_perms(perm_id):
 @marshal_with(PermissionShema)
 @permission.route('/user/<user_id>', methods=['GET'])
 def get_perm_user(user_id):
+    """Возвращает список доступов юзера"""
     roles_out = get_perm_user_service(user_id)
     return jsonify(roles_out)
 
@@ -94,10 +93,9 @@ def get_perm_user(user_id):
 @check_roles(roles=['admin'])
 @permission.route('/user/<user_id>', methods=['POST'])
 def set_perm_user(user_id):
+    """Добавить доступ для юзера"""
     permission_name = request.json['permissions']
-    msg = MsgText.PERMISSIONS_NOT_FOUND
-    if set_perm_user_service(user_id, permission_name):
-        msg = MsgText.ADD_PERMISSION
+    msg = MsgText.ADD_PERMISSION if set_perm_user_service(user_id, permission_name) else MsgText.PERMISSIONS_NOT_FOUND
     return jsonify(msg=msg)
 
 
@@ -108,9 +106,7 @@ def set_perm_user(user_id):
 @permission.route('/user/<user_id>', methods=['DELETE'])
 def delete_perm_user(user_id):
     permission_name = request.json['permissions']
-    msg = MsgText.PERMISSIONS_NOT_FOUND
-    if delete_perm_user_service(user_id, permission_name):
-        msg = MsgText.REMOVE_PERMISSION
+    msg = MsgText.REMOVE_PERMISSION if delete_perm_user_service(user_id, permission_name) else MsgText.PERMISSIONS_NOT_FOUND
     return jsonify(msg=msg)
 
 

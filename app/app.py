@@ -99,7 +99,7 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     token_in_redis = jwt_blocklist.get(jti)
     return token_in_redis is not None
 
-
+# Добавление rout Api
 app.register_blueprint(user, url_prefix='/api/v1/user')
 app.register_blueprint(totp, url_prefix='/api/v1/totp')
 app.register_blueprint(oauth, url_prefix='/api/v1/oauth')
@@ -107,6 +107,7 @@ app.register_blueprint(auth, url_prefix='/api/v1/auth')
 app.register_blueprint(permission, url_prefix='/api/v1/permission')
 app.register_blueprint(rol, url_prefix='/api/v1/role')
 
+# Добавление документации Swagger
 docs.register(signup_post, blueprint='auth')
 docs.register(login, blueprint='auth')
 docs.register(users, blueprint='user')

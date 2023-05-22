@@ -24,6 +24,7 @@ jwt_blocklist = jwt_db
 @marshal_with(UserSchema(many=True, only=('id', 'login', 'email')))
 @jwt_required()
 def users():
+    """Вывод всех польователей"""
     us_all = users_service()
     return jsonify(us_all)
 
@@ -33,6 +34,7 @@ def users():
 @user.route("/index", methods=["GET"])
 @jwt_required()
 def index():
+    """Страница пользователя"""
     id = get_jwt_identity()
     user_out = index_service(id)
     return jsonify(user_out)
@@ -43,6 +45,7 @@ def index():
 @user.route("/history", methods=["GET"])
 @jwt_required()
 def history():
+    """История входов"""
     page = request.args.get('page')
     per_page = request.args.get('per_page')
     id = get_jwt_identity()

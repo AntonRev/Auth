@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 
 
 def sync_service(user_id: uuid) -> str:
-    """Возвращает шаблон"""
+    """Возвращает шаблон c QR"""
     # Генерация секретного ключа, на его основе будут создавать коды
     secret = pyotp.random_base32()
     user = User.query.filter_by(id=user_id).first()

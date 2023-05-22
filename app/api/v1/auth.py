@@ -21,13 +21,15 @@ ACCESS_EXPIRES = Config().JWT_ACCESS_TOKEN_EXPIRES
 jwt_blocklist = jwt_db
 
 
-@doc(description='Вход пользователя. При включеной 2 факторной авторизации перенапраляет на запрос запрос пароля',
+@doc(description='Вход пользователя. При включеной 2 факторной авторизации перенапраляет на запрос пароля',
      tags=['Authorization'])
 @use_kwargs({'email': fields.Str(), 'password': fields.Str()})
 @marshal_with(TokenSchema)
 @auth.route('/login', methods=['POST'])
 @ratelimit()
 def login(**kwargs):
+    """Вход пользователя
+    При включеной 2-факторной авторизации перенапраляет на запрос пароля"""
     email = request.json.get('email', None)
     password = request.json.get('password', None)
     ua = request.headers.get('User-Agent')
@@ -38,7 +40,7 @@ def login(**kwargs):
 @doc(description='Получить OPEN TOKEN JWT',
     tags=['Authorization'])
 @auth.route('/open-token', methods=['GET', 'POST'])
-def token():
+def get_open_token():
     return jsonify(token=config.JWT_OPEN_KEY)
 
 
@@ -47,6 +49,7 @@ def token():
 @auth.route('/refresh', methods=['POST', 'GET'])
 @jwt_required(refresh=True)
 def refresh(**kwargs):
+    """Обновление токена"""
     ua = request.headers.get('User-Agent')
     id = get_jwt_identity()
     role = get_jwt()['role']
@@ -59,6 +62,7 @@ def refresh(**kwargs):
 @auth.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
+    """Выход пользователя"""
     id = get_jwt_identity()
     ua = request.headers.get('User-Agent')
     del_ua_in_user(id, ua)
@@ -73,6 +77,7 @@ def logout():
 @auth.route('/signup', methods=['POST'])
 @ratelimit()
 def signup_post(**kwargs):
+    """Регистрация пользователя"""
     username = request.json.get("email", None)
     password = request.json.get("password1", None)
     password2 = request.json.get("password2", None)

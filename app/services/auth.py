@@ -63,7 +63,7 @@ def check_ua_in_user(ua: str, id: uuid):
 
 
 def del_ua_in_user(id: uuid, ua: str) -> None:
-    """Удалить юзерагент у пользователя"""
+    """Удалить юзерагент из истории пользователя"""
     UserAgent.query.filter_by(user_id=id, ua=ua).delete()
 
 
@@ -90,7 +90,7 @@ def signup_service(username: str, password: str, password2: str, ua: str, age: i
 
 
 def add_ua_user(ua: str, user: str):
-    """Добавляем UA к юзеру"""
+    """Добавляем UA к истории юзера"""
     user_id = user.id
     if ua not in [x.ua for x in UserAgent.query.filter_by(user_id=user.id).all()]:
         user_agent = UserAgent(ua=ua, user_id=user_id)

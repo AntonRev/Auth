@@ -22,6 +22,7 @@ class NameOauth(Enum):
 @tracer
 @circuitbreakers(redirect_to='user.index')
 def set_auth(auth_name):
+    """Запрос авторизации"""
     url = set_auth_servie(auth_name)
     return redirect(url)
 
@@ -30,6 +31,7 @@ def set_auth(auth_name):
 @oauth.route('/<auth_name>/<code>', methods=['GET'])
 @tracer
 def get_auth(auth_name, code):
+    """Получение токена и получение данных"""
     ua = request.headers.get('User-Agent')
     if auth_name == NameOauth.YANDEX:
         aoth = Yandex()
