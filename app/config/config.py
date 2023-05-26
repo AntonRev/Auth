@@ -48,7 +48,7 @@ class Settings(BaseSettings):
 
     # VK Auth
     VK_OAUTH = {'url': 'vk',
-                'redirect_uri': 'https://localhost/api/v1/oauth/code',
+                'redirect_uri': 'https://flask/api/v1/oauth/code',
                 'client_id': 'client_id',
                 'response_type': 'code',
                 'display': 'popup',

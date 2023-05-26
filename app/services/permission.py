@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 def get_perm_service(perm_id: uuid) -> PermissionShema:
     """Проверить доступы юзера"""
     permission = Permission.query.filter_by(id=perm_id).first()
-    permissions_out = PermissionShema().dump(permission)
+    permissions_out = PermissionShema(many=True).dump(permission)
     return permissions_out
 
 
@@ -25,7 +25,7 @@ def add_perm_service(perm_name, role_name, description) -> Response:
     perm = Permission(name=perm_name, description=description, role_id=role.id)
     db.session.add(perm)
     db.session.commit()
-    return jsonify(permission=perm)
+    return PermissionShema.dump(perm)
 
 
 def change_perm_service(perm_id: uuid, description: str) -> RequireShema:
@@ -50,7 +50,7 @@ def add_perms_service(perm_name: str, description: str) -> Response:
     required = Require(name=perm_name, description=description)
     db.session.add(required)
     db.session.commit()
-    return jsonify(required=required)
+    return required.json()
 
 
 def change_perms_service(perm_id: uuid, params: dict) -> Response:
@@ -59,7 +59,7 @@ def change_perms_service(perm_id: uuid, params: dict) -> Response:
     required.id = perm_id
     db.session.add(required)
     db.session.commit()
-    return jsonify(required=required)
+    return required.json()
 
 
 def get_perm_user_service(user_id: uuid) -> PermissionShema:
@@ -78,7 +78,7 @@ def set_permission_from_user(user_id: uuid, permissions: str) -> Response:
     user.permission.append(permission)
     db.session.add(user)
     db.session.commit()
-    return jsonify(user=user)
+    return user.json()
 
 
 def delete_permission_from_user(user_id, permissions) -> Response:

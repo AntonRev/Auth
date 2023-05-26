@@ -25,8 +25,7 @@ jwt_blocklist = jwt_db
 @jwt_required()
 def users():
     """Вывод всех польователей"""
-    us_all = users_service()
-    return jsonify(us_all)
+    return users_service()
 
 
 @doc(description='Страница пользователя', tags=['User'])

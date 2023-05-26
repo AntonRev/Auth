@@ -32,7 +32,7 @@ def get_role(role_name: str):
 @rol.route('/<role>', methods=['POST'])
 def add_role(role: str):
     """Добавить новую роль"""
-    description = request.args.get('description', default=None)
+    description = request.json['description']
     return add_rol_service(role, description)
 
 

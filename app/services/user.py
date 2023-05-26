@@ -20,22 +20,18 @@ jwt_blocklist = jwt_db
 def users_service() -> UserSchema:
     users_schema = UserSchema(many=True, only=('id', 'login', 'email'))
     users = User.query.all()
-    us_all = users_schema.dump(users)
-    return us_all
+    return users_schema(many=True).dump(users)
 
 
 def index_service(id: uuid) -> UserSchema:
     user_schema = UserSchema(only=("id", "login", "email", "role", 'auth_two_factor'))
     user = User.query.filter_by(user_id=id).first()
-    user_out = user_schema.dump(user)
-    return user_out
+    return user_schema().dump(user)
 
 
 def history_service(id: uuid, page: str, per_page: str):
     """Получить историю входов"""
-    history = UserAgentShema(many=True)
-    histor = UserAgent.query.filter_by(user_id=id).paginate(page=int(page),
+    history = UserAgent.query.filter_by(user_id=id).paginate(page=int(page),
                                                             per_page=int(per_page),
                                                             error_out=False).items
-    history_out = history.dump(histor)
-    return history_out
+    return UserAgentShema(many=True).dump(history)

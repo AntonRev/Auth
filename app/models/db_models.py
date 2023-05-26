@@ -37,6 +37,9 @@ class UserAgent(db.Model):
         self.ua = ua
         self.user_id = user_id
 
+    def json(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 class Role(db.Model):
     __tablename__ = "role"
@@ -51,6 +54,9 @@ class Role(db.Model):
         self.description = description
         log.info('Role created %s' % name)
 
+    def json(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 class RoleUser(db.Model):
     __tablename__ = "role_user"
@@ -58,6 +64,9 @@ class RoleUser(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     role_id = db.Column(UUID(as_uuid=True), db.ForeignKey("role.id"), primary_key=True)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("user.id"), primary_key=True)
+
+    def json(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class Permission(db.Model):
@@ -73,6 +82,9 @@ class Permission(db.Model):
         self.description = description
         self.role_id = role_id
 
+    def json(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 class UserPermissions(db.Model):
     __tablename__ = "user_permissions"
@@ -81,6 +93,9 @@ class UserPermissions(db.Model):
     permission_id = db.Column(UUID(as_uuid=True), db.ForeignKey("permission.id"), primary_key=True)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("user.id"), primary_key=True)
 
+    def json(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 class ReqPermissions(db.Model):
     __tablename__ = "req_permissions"
@@ -88,6 +103,9 @@ class ReqPermissions(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     permission_id = db.Column(UUID(as_uuid=True), db.ForeignKey("permission.id"), primary_key=True)
     req_id = db.Column(UUID(as_uuid=True), db.ForeignKey("requare.id"), primary_key=True)
+
+    def json(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class Require(db.Model):
@@ -102,20 +120,23 @@ class Require(db.Model):
         self.name = name
         self.description = description
 
+    def json(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 class User(db.Model):
     __tablename__ = 'user'
     __table_args__ = (UniqueConstraint('id', 'age_user'),
-                      {
-                          'postgresql_partition_by': 'HASH (id);',
-                          'listeners': [('after_create', create_partition)],
-                      }
+                      # {
+                      #     'postgresql_partition_by': 'HASH (id);',
+                      #     'listeners': [('after_create', create_partition)],
+                      # }
                       )
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, unique=True, default=uuid.uuid4, nullable=False)
     login = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(50), nullable=False)
-    password = db.Column(db.String(50), nullable=False)
+    password = db.Column(db.String(150), nullable=False)
     data_create = db.Column(db.DateTime, default=datetime.utcnow())
     auth_two_factor = db.Column(db.Boolean, default=False)
     age_user = db.Column(db.Integer(), primary_key=True)
@@ -133,6 +154,9 @@ class User(db.Model):
         self.role = [Role.query.filter_by(name=role).first()]
         self.age_user = age_user
 
+    def json(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 class Totp(db.Model):
     __tablename__ = 'totp'
@@ -147,6 +171,9 @@ class Totp(db.Model):
         self.two_factor_secrets = two_factor_secrets
         self.user_id = user_id
 
+    def json(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 class Auth2(db.Model):
     __tablename__ = 'auth'
@@ -159,3 +186,6 @@ class Auth2(db.Model):
     def __init__(self, token, user_id):
         self.auth_token = token
         self.user_id = user_id
+
+    def json(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}

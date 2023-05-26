@@ -39,7 +39,7 @@ def login(**kwargs) -> Response:
 @doc(description='Получить OPEN TOKEN JWT',
      tags=['Authorization'])
 @marshal_with(TokenSchema(only=('access_token',)))
-@auth.route('/open-token', methods=['GET', 'POST'])
+@auth.route('/open-token', methods=['GET'])
 def get_open_token() -> Response:
     """Получить OPEN TOKEN JWT'"""
     return jsonify(token=config.JWT_OPEN_KEY)
@@ -47,7 +47,7 @@ def get_open_token() -> Response:
 
 @doc(description='Обновление токена.', tags=['Authorization'])
 @marshal_with(TokenSchema())
-@auth.route('/refresh', methods=['POST', 'GET'])
+@auth.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh(**kwargs) -> Response:
     """Обновление токена"""

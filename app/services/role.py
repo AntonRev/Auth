@@ -6,7 +6,7 @@ from flask import Blueprint, jsonify
 from api.v1.msg_text import MsgText
 from db.db import db
 from models.db_models import User, Role, Permission
-from models.swagger_schema import RoleSchema, PermissionShema
+from models.swagger_schema import RoleSchema, PermissionShema, UserSchema
 
 rol = Blueprint('rol', __name__)
 log = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ def add_rol_service(role: str, description: str) -> bool:
     role = Role(name=role, description=description)
     db.session.add(role)
     db.session.commit()
-    return jsonify(role=role)
+    return role.json()
 
 
 def change_rol_service(role: str, description: str) -> bool:
@@ -36,7 +36,7 @@ def change_rol_service(role: str, description: str) -> bool:
     rol.description = description
     db.session.add(rol)
     db.session.commit()
-    return jsonify(role=role)
+    return RoleSchema().dump(rol)
 
 
 def delete_rol_service(role: str) -> bool:
@@ -72,7 +72,7 @@ def set_roles_service(user_id: uuid, roles: str) -> None:
     user.role.append(rol)
     db.session.add(user)
     db.session.commit()
-    return jsonify(user=user)
+    return UserSchema().dump(user)
 
 
 def delete_rols_service(user_id: uuid, roles: str) -> bool:

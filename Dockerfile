@@ -16,7 +16,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY ./utils/wait_for_redis.py .
 COPY ./app .
-COPY ./migrations ./migrations
+COPY app/migrations ./migrations
 USER app
 EXPOSE 5000
 #RUN flask db upgrade

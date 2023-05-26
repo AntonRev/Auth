@@ -7,7 +7,6 @@ from redis.exceptions import ConnectionError
 from config.config import config
 from config.logger import LOGGING
 
-redis_host = config.REDIS_HOST
 logging.config.dictConfig(LOGGING)
 log = logging.getLogger('__name__')
 
@@ -16,7 +15,7 @@ log = logging.getLogger('__name__')
                       ConnectionError,
                       max_time=60)
 def conn_redis():
-    r = Redis(redis_host)
+    r = Redis(config.REDIS_HOST)
     r.ping()
     log.info("Redis connected")
 

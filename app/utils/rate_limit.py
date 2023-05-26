@@ -6,13 +6,10 @@ from flask import jsonify, request
 
 from config.config import config
 
-# Установим лимит запросов в минуту
-REQUEST_LIMIT_PER_MINUTE = config.REQUEST_LIMIT_PER_MINUTE
-
-redis_conn = redis.Redis(host='localhost', port=6379, db=0)
+redis_conn = redis.Redis(host=config.REDIS_HOST, port=6379, db=0)
 
 
-def ratelimit(per_min=REQUEST_LIMIT_PER_MINUTE):
+def ratelimit(per_min=config.REQUEST_LIMIT_PER_MINUTE):
     """ Ограничение количества запрос с 1 IP в мин"""
 
     def limit(fn):
@@ -44,7 +41,7 @@ def check_ip(ip):
     pipe.expire(key, 59)
     result = pipe.execute()
     request_number = result[0]
-    if request_number > REQUEST_LIMIT_PER_MINUTE:
+    if request_number > config.REQUEST_LIMIT_PER_MINUTE:
         return False
     else:
         return True

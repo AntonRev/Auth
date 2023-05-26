@@ -5,7 +5,9 @@ from functools import wraps
 import redis
 from flask import redirect, url_for
 
-redis_conn = redis.Redis(host='localhost', port=6379, db=0)
+from config.config import config
+
+redis_conn = redis.Redis(host=config.REDIS_HOST, port=6379, db=0)
 log = logging.getLogger(__name__)
 
 
