@@ -1,6 +1,7 @@
 import base64
 import logging
 import uuid
+from abc import ABC, abstractmethod
 from datetime import datetime
 
 import requests
@@ -32,12 +33,13 @@ def set_auth_servie(self, auth_name: str) -> str:
     return url
 
 
-class OAuth():
+class OAuth(ABC):
     """Базовый класс дял OAuth"""
-
+    @abstractmethod
     def get_token_service(self, code):
         pass
 
+    @abstractmethod
     def get_data_service(self, token, ua):
         pass
 
