@@ -41,7 +41,7 @@ class OAuth():
     def get_data_service(self, token, ua):
         pass
 
-    def set_user_service(self, ua, email, age, token):
+    def __set_user_service(self, ua, email, age, token):
         user = User.query.filter_by(email=email).first()
         if user is None:
             user = User(email=email, password=uuid.uuid4().hex, age=age)
@@ -75,7 +75,7 @@ class Yandex(OAuth):
         birthday = response['birthday']
         year_birthday = datetime.strptime(birthday, '%Y-%d-%m').year
         age = datetime.now().year - year_birthday
-        self.set_user_service(ua=ua, email=email, token=token, age=age)
+        self.__set_user_service(ua=ua, email=email, token=token, age=age)
 
 
 class Vk(OAuth):
@@ -97,4 +97,4 @@ class Vk(OAuth):
         birthday = response['bdate']
         year_birthday = datetime.strptime(birthday, '%d-%m-%Y').year
         age = datetime.now().year - year_birthday
-        self.set_user_service(ua=ua, email=email, token=token, age=age)
+        self.__set_user_service(ua=ua, email=email, token=token, age=age)
