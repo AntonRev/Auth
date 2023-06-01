@@ -5,9 +5,9 @@ from flask import jsonify, request, Blueprint, Response
 from flask_apispec import use_kwargs, doc, marshal_with
 from webargs import fields
 
-from models.swagger_schema import PermissionShema, RequireShema, RespSchema, UserSchema
-from services.permission import get_perm_service, add_perm_service, change_perm_service, get_perms_service, \
-    add_perms_service, change_perms_service, get_perm_user_service, set_permission_from_user, \
+from models.swagger_schema import PermissionSchema, RequireShema, RespSchema, UserSchema
+from services.permission import get_permission_service, add_permission_to_role_service, change_perm_service, get_permissions_by_user_service, \
+    create_new_permission_service, change_permission_service, get_permission_by_user_service, set_permission_from_user, \
     delete_permission_from_user
 from utils.check import check_roles
 
@@ -16,16 +16,16 @@ log = logging.getLogger(__name__)
 
 
 @doc(description='Получить описание доступа', tags=['Permission'])
-@marshal_with(PermissionShema)
+@marshal_with(PermissionSchema)
 @permission.route('/<perm_id>', methods=['GET'])
 def get_perm(perm_id):
     """Получить описание доступа"""
-    permissions_out = get_perm_service(perm_id)
+    permissions_out = get_permission_service(perm_id)
     return jsonify(permissions_out)
 
 
 @doc(description='Создать новый доступ', tags=['Permission'])
-@marshal_with(PermissionShema)
+@marshal_with(PermissionSchema)
 @use_kwargs({'description': fields.Str()})
 @check_roles(roles=['admin'])
 @permission.route('/<perm_name>', methods=['POST'])
@@ -34,7 +34,7 @@ def add_perm(perm_name):
     params = request.json
     role = params['role_name']
     perm = params['description']
-    return add_perm_service(perm_name, role, perm)
+    return add_permission_to_role_service(perm_name, role, perm)
 
 
 @doc(description='Изменить описание доступа', tags=['Permission'])
@@ -52,7 +52,7 @@ def change_perm(perm_id):
 @marshal_with(RequireShema)
 @permission.route('/required/<perm_id>', methods=['GET'])
 def get_perms(perm_id):
-    require_out = get_perms_service(perm_id)
+    require_out = get_permissions_by_user_service(perm_id)
     return jsonify(require_out)
 
 
@@ -64,7 +64,7 @@ def get_perms(perm_id):
 def add_perms(perm_name):
     """Установить требуемые права доступа"""
     params = request.json
-    return add_perms_service(perm_name, params['description'])
+    return create_new_permission_service(perm_name, params['description'])
 
 
 @doc(description='Изменить описание прав доступа', tags=['Permission'])
@@ -74,15 +74,15 @@ def add_perms(perm_name):
 def change_perms(perm_id):
     """Изменить правa доступа"""
     params = request.json
-    return change_perms_service(perm_id, params)
+    return change_permission_service(perm_id, params)
 
 
 @doc(description='Возвращает список доступов юзера', tags=['Permission'])
-@marshal_with(PermissionShema)
+@marshal_with(PermissionSchema)
 @permission.route('/user/<user_id>', methods=['GET'])
 def get_perm_user(user_id):
     """Возвращает список доступов юзера"""
-    roles_out = get_perm_user_service(user_id)
+    roles_out = get_permission_by_user_service(user_id)
     return jsonify(roles_out)
 
 

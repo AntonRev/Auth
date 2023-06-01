@@ -7,6 +7,7 @@ class MsgText(str, Enum):
     """
     # Error
     ERROR_BD = 'Error to access BD'
+    USER_NOT_FOUND = 'User not found'
     # auth
     INCORRECT_LOGIN = 'Incorrect login or password.'
     ACCESS_TOKEN_REVOKED = "Access token revoked."

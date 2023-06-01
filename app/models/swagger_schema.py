@@ -18,7 +18,7 @@ class RoleSchema(SQLAlchemyAutoSchema):
         model = Role
 
 
-class PermissionShema(SQLAlchemyAutoSchema):
+class PermissionSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Permission
 

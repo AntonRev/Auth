@@ -6,7 +6,7 @@ from flask import jsonify, request, Blueprint
 from flask_apispec import use_kwargs, doc, marshal_with
 from webargs import fields
 
-from models.swagger_schema import PermissionShema, RoleSchema, RespSchema, UserSchema
+from models.swagger_schema import PermissionSchema, RoleSchema, RespSchema, UserSchema
 from services.role import get_permissions_by_role, add_rol_service, change_rol_service, delete_rol_service, get_role_service, \
     set_role_by_user_service, delete_role_by_user_service
 from utils.check import check_roles
@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 
 @doc(description='Возвращает описание и список доступов для роли', tags=['Role'])
-@marshal_with(PermissionShema(many=True))
+@marshal_with(PermissionSchema(many=True))
 @check_roles(roles=['admin'])
 @rol.route('/<role_name>', methods=['GET'])
 def get_role(role_name: str):

@@ -7,19 +7,19 @@ from sqlalchemy.exc import SQLAlchemyError
 from api.v1.msg_text import MsgText
 from db.db import db
 from models.db_models import User, Role, Permission
-from models.swagger_schema import RoleSchema, PermissionShema, UserSchema
+from models.swagger_schema import RoleSchema, PermissionSchema, UserSchema
 
 rol = Blueprint('rol', __name__)
 log = logging.getLogger(__name__)
 
 
-def get_permissions_by_role(role_name: str) -> PermissionShema:
+def get_permissions_by_role(role_name: str) -> PermissionSchema:
     """Получить доступы по роли"""
     role = Role.query.filter_by(name=role_name).first()
     if role is None:
         return jsonify(msg=MsgText.ROLE_NOT_FOUND)
     permissions = Permission.query.filter_by(role_id=role.id).all()
-    return PermissionShema(many=True).dump(permissions)
+    return PermissionSchema(many=True).dump(permissions)
 
 
 def add_rol_service(role: str, description: str) -> RoleSchema:

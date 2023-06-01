@@ -2,92 +2,115 @@ import logging
 import uuid
 
 from flask import Blueprint, jsonify, Response
+from sqlalchemy.exc import SQLAlchemyError
 
 from api.v1.msg_text import MsgText
 from db.db import db
 from models.db_models import User, Role, Permission, Require
-from models.swagger_schema import PermissionShema, RequireShema
+from models.swagger_schema import PermissionSchema, RequireShema, UserSchema
 
 permission = Blueprint('permission', __name__)
 log = logging.getLogger(__name__)
 
 
-def get_perm_service(perm_id: uuid) -> PermissionShema:
-    """Проверить доступы юзера"""
+def get_permission_service(perm_id: uuid) -> PermissionSchema:
+    """Проверить описание доступа"""
     permission = Permission.query.filter_by(id=perm_id).first()
-    permissions_out = PermissionShema(many=True).dump(permission)
-    return permissions_out
+    return PermissionSchema().dump(permission)
 
 
-def add_perm_service(perm_name, role_name, description) -> Response:
+def add_permission_to_role_service(perm_name, role_name, description) -> Response:
     """Добавить доступы к роли"""
-    role = Role.query.filter_by(name=role_name).first()
-    perm = Permission(name=perm_name, description=description, role_id=role.id)
-    db.session.add(perm)
-    db.session.commit()
-    return PermissionShema.dump(perm)
+    try:
+        role = Role.query.filter_by(name=role_name).first()
+        permission = Permission(name=perm_name, description=description, role_id=role.id)
+        db.session.add(permission)
+        db.session.commit()
+    except SQLAlchemyError:
+        return jsonify(msg=MsgText.ERROR_BD)
+    return PermissionSchema.dump(permission)
 
 
 def change_perm_service(perm_id: uuid, description: str) -> RequireShema:
     """Изменить доступы юзера"""
-    require = db.session.query(Require).get(perm_id)
-    require.description = description
-    db.session.add(require)
-    db.session.commit()
-    require_out = RequireShema().dump(require)
-    return require_out
+    try:
+        require = db.session.query(Require).get(perm_id)
+        require.description = description
+        db.session.add(require)
+        db.session.commit()
+    except SQLAlchemyError:
+        return jsonify(msg=MsgText.ERROR_BD)
+    return RequireShema().dump(require)
 
 
-def get_perms_service(perm_id: uuid) -> [RequireShema]:
+def get_permissions_by_user_service(perm_id: uuid) -> [RequireShema]:
     """Получить все доступы юзера"""
-    require = Require.query.filter_by(id=perm_id).all()
-    require_out = RequireShema(many=True).dump(require)
-    return require_out
+    try:
+        require = Require.query.filter_by(id=perm_id).all()
+    except SQLAlchemyError:
+        return jsonify(msg=MsgText.ERROR_BD)
+    return RequireShema(many=True).dump(require)
 
 
-def add_perms_service(perm_name: str, description: str) -> Response:
+def create_new_permission_service(perm_name: str, description: str) -> Response:
     """Создать новые настройки доступа"""
-    required = Require(name=perm_name, description=description)
-    db.session.add(required)
-    db.session.commit()
-    return required.json()
+    try:
+        required = Require(name=perm_name, description=description)
+        db.session.add(required)
+        db.session.commit()
+    except SQLAlchemyError:
+        return jsonify(msg=MsgText.ERROR_BD)
+    return RequireShema().dump(required)
 
 
-def change_perms_service(perm_id: uuid, params: dict) -> Response:
+def change_permission_service(perm_id: uuid, params: dict) -> RequireShema:
     """Изменить настройки доступа"""
-    required = Require(**params)
-    required.id = perm_id
-    db.session.add(required)
-    db.session.commit()
-    return required.json()
+    try:
+        required = Require(**params)
+        required.id = perm_id
+        db.session.add(required)
+        db.session.commit()
+    except SQLAlchemyError:
+        return jsonify(msg=MsgText.ERROR_BD)
+    return RequireShema().dump(required)
 
 
-def get_perm_user_service(user_id: uuid) -> PermissionShema:
-    """Получить настройки доступа"""
-    perm = User.query.filter_by(id=user_id).first()
-    roles_out = PermissionShema(many=True).dump(perm)
-    return roles_out
+def get_permission_by_user_service(user_id: uuid) -> PermissionSchema:
+    """Получить настройки доступа по user_id"""
+    try:
+        permissions = Permission.query.filter_by(user_id=user_id).first()
+        if permissions is None:
+            return jsonify(msg=MsgText.USER_NOT_FOUND)
+    except SQLAlchemyError:
+        return jsonify(msg=MsgText.ERROR_BD)
+    return PermissionSchema(many=True).dump(permissions)
 
 
-def set_permission_from_user(user_id: uuid, permissions: str) -> Response:
+def set_permission_from_user(user_id: uuid, permissions: str) -> UserSchema:
     """Установить настройки доступа для юзера"""
-    user = db.session.query(User).get(user_id)
-    permission = Permission.query.filter_by(name=permissions).first()
-    if permission is None:
-        jsonify(msg=MsgText.ADD_PERMISSION)
-    user.permission.append(permission)
-    db.session.add(user)
-    db.session.commit()
-    return user.json()
+    try:
+        user = db.session.query(User).get(user_id)
+        permission = Permission.query.filter_by(name=permissions).first()
+        if permission is None:
+            jsonify(msg=MsgText.PERMISSIONS_NOT_FOUND)
+        user.permission.append(permission)
+        db.session.add(user)
+        db.session.commit()
+    except SQLAlchemyError:
+        return jsonify(msg=MsgText.ERROR_BD)
+    return UserSchema().dump(user)
 
 
 def delete_permission_from_user(user_id, permissions) -> Response:
     """Удалить настройки доступа для юзера"""
-    user = db.session.query(User).get(user_id)
-    permission = Permission.query.filter_by(name=permissions).first()
-    if permission is None:
-        return jsonify(msg=MsgText.PERMISSIONS_NOT_FOUND)
-    user.permission.remove(permission)
-    db.session.add(user)
-    db.session.commit()
+    try:
+        user = db.session.query(User).get(user_id)
+        permission = Permission.query.filter_by(name=permissions).first()
+        if permission is None:
+            return jsonify(msg=MsgText.PERMISSIONS_NOT_FOUND)
+        user.permission.remove(permission)
+        db.session.add(user)
+        db.session.commit()
+    except SQLAlchemyError:
+        return jsonify(msg=MsgText.ERROR_BD)
     return jsonify(msg=MsgText.REMOVE_PERMISSION)
