@@ -19,17 +19,18 @@ log = logging.getLogger(__name__)
 client_id = config.CLIENT_ID
 
 
-def set_auth_servie(self, auth_name: str) -> str:
+def get_auth_servie(auth_name: str) -> str:
+    """Получить ссылку в сервис authorize"""
     if auth_name == "yandex":
-        param_dic = config.YANDEX_OAUTH
-    if auth_name == "vk":
-        param_dic = config.VK_OAUTH
-    url = f'https://oauth.{param_dic["url"]}.ru/authorize?' \
-          f'response_type={param_dic["token"]}' \
-          f'&client_id={param_dic["client_id"]}' \
-          f'&redirect_uri={param_dic["redirect_uri"]}' \
-          f'&display={param_dic["popup"]}' \
-          f'{param_dic["dop_param"]}'
+        parametrs_url = config.YANDEX_OAUTH
+        if auth_name == "vk":
+            parametrs_url = config.VK_OAUTH
+    url = f'https://oauth.{parametrs_url["url"]}.ru/authorize?' \
+          f'response_type={parametrs_url["token"]}' \
+          f'&client_id={parametrs_url["client_id"]}' \
+          f'&redirect_uri={parametrs_url["redirect_uri"]}' \
+          f'&display={parametrs_url["popup"]}' \
+          f'{parametrs_url["dop_param"]}'
     return url
 
 
