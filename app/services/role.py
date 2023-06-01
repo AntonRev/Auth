@@ -2,6 +2,7 @@ import logging
 import uuid
 
 from flask import Blueprint, jsonify
+from sqlalchemy.exc import SQLAlchemyError
 
 from api.v1.msg_text import MsgText
 from db.db import db
@@ -12,76 +13,91 @@ rol = Blueprint('rol', __name__)
 log = logging.getLogger(__name__)
 
 
-def get_permissions(role_name: str) -> PermissionShema:
+def get_permissions_by_role(role_name: str) -> PermissionShema:
     """Получить доступы по роли"""
     role = Role.query.filter_by(name=role_name).first()
     if role is None:
-        return []
+        return jsonify(msg=MsgText.ROLE_NOT_FOUND)
     permissions = Permission.query.filter_by(role_id=role.id).all()
-    permissions_out = PermissionShema(many=True).dump(permissions)
-    return permissions_out
+    return PermissionShema(many=True).dump(permissions)
 
 
-def add_rol_service(role: str, description: str) -> bool:
+def add_rol_service(role: str, description: str) -> RoleSchema:
     """Создать роль"""
-    role = Role(name=role, description=description)
-    db.session.add(role)
-    db.session.commit()
+    try:
+        role = Role(name=role, description=description)
+        db.session.add(role)
+        db.session.commit()
+    except SQLAlchemyError:
+        return jsonify(msg=MsgText.ERROR_BD)
     return role.json()
 
 
-def change_rol_service(role: str, description: str) -> bool:
+def change_rol_service(role: str, description: str) -> RoleSchema:
     """Изменить роль"""
-    rol = Role.query.filter_by(name=role).first()
-    rol.description = description
-    db.session.add(rol)
-    db.session.commit()
-    return RoleSchema().dump(rol)
+    try:
+        change_role = Role.query.filter_by(name=role).first()
+        change_role.description = description
+        if change_role is None:
+            return jsonify(msg=MsgText.ROLE_NOT_FOUND)
+        db.session.add(change_role)
+        db.session.commit()
+    except SQLAlchemyError:
+        return jsonify(msg=MsgText.ERROR_BD)
+    return RoleSchema().dump(change_role)
 
 
 def delete_rol_service(role: str) -> bool:
     """Удалить роль"""
-    role = Role.query.filter_by(name=role).first()
-    if rol is None:
-        return jsonify(msg=MsgText.NOT_ACCSESS)
     try:
+        change_role = Role.query.filter_by(name=role).first()
+        if change_role is None:
+            return jsonify(msg=MsgText.ROLE_NOT_FOUND)
         db.session.delete(rol)
         db.session.commit()
-    except:
-        return jsonify(msg=MsgText.NOT_ACCSESS)
+    except SQLAlchemyError:
+        return jsonify(msg=MsgText.ERROR_BD)
     return jsonify(msg=MsgText.DELETE)
 
 
-def get_ros_service(user_id: uuid) -> RoleSchema:
+def get_role_by_user_service(user_id: uuid) -> RoleSchema:
     """Получить роли юзера"""
-    if (type(user_id)) != uuid:
-        user = User.query.filter_by(email=user_id).first()
-    else:
-        user = User.query.filter_by(id=user_id).first()
-    if user is None:
-        return []
-    rol = user.role
-    roles_out = RoleSchema(many=True).dump(rol)
-    return roles_out
+    try:
+        if (type(user_id)) != uuid:
+            user = User.query.filter_by(email=user_id).first()
+        else:
+            user = User.query.filter_by(id=user_id).first()
+        if user is None:
+            return jsonify(msg=MsgText.ROLE_NOT_FOUND)
+        change_role = user.role
+    except SQLAlchemyError:
+        return jsonify(msg=MsgText.ERROR_BD)
+    return RoleSchema(many=True).dump(change_role)
 
 
-def set_roles_service(user_id: uuid, roles: str) -> None:
+def set_role_by_user_service(user_id: uuid, roles: str) -> None:
     """Установить роли для юзера"""
-    user = db.session.query(User).get(user_id)
-    rol = Role.query.filter_by(name=roles).first()
-    user.role.append(rol)
-    db.session.add(user)
-    db.session.commit()
+    try:
+        user = db.session.query(User).get(user_id)
+        change_role = Role.query.filter_by(name=roles).first()
+        user.role.append(change_role)
+        db.session.add(user)
+        db.session.commit()
+    except SQLAlchemyError:
+        return jsonify(msg=MsgText.ERROR_BD)
     return UserSchema().dump(user)
 
 
-def delete_rols_service(user_id: uuid, roles: str) -> bool:
+def delete_role_by_user_service(user_id: uuid, roles: str) -> bool:
     """Удалить роли для юзера"""
-    user = db.session.query(User).get(user_id)
-    rol = Role.query.filter_by(name=roles).first()
-    if rol is None:
-        return jsonify(msg=MsgText.NOT_ACCSESS)
-    user.role.remove(rol)
-    db.session.add(user)
-    db.session.commit()
+    try:
+        user = db.session.query(User).get(user_id)
+        rol = Role.query.filter_by(name=roles).first()
+        if rol is None:
+            return jsonify(msg=MsgText.NOT_ACCSESS)
+        user.role.remove(rol)
+        db.session.add(user)
+        db.session.commit()
+    except SQLAlchemyError:
+        return jsonify(msg=MsgText.ERROR_BD)
     return jsonify(msg=MsgText.REMOVE)

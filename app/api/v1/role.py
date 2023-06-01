@@ -7,8 +7,8 @@ from flask_apispec import use_kwargs, doc, marshal_with
 from webargs import fields
 
 from models.swagger_schema import PermissionShema, RoleSchema, RespSchema, UserSchema
-from services.role import get_permissions, add_rol_service, change_rol_service, delete_rol_service, get_ros_service, \
-    set_roles_service, delete_rols_service
+from services.role import get_permissions_by_role, add_rol_service, change_rol_service, delete_rol_service, get_role_service, \
+    set_role_by_user_service, delete_role_by_user_service
 from utils.check import check_roles
 
 rol = Blueprint('rol', __name__)
@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 @rol.route('/<role_name>', methods=['GET'])
 def get_role(role_name: str):
     """Возвращает описание и список доступов для роли"""
-    permissions_out = get_permissions(role_name)
+    permissions_out = get_permissions_by_role(role_name)
     return jsonify(permissions_out)
 
 
@@ -61,7 +61,7 @@ def delete_role(role: str):
 @rol.route('/user/<user_id>', methods=['GET'])
 def get_roles(user_id: uuid4):
     """Возвращает список ролей юзера"""
-    roles_out = get_ros_service(user_id)
+    roles_out = get_role_service(user_id)
     return jsonify(roles_out)
 
 
@@ -73,7 +73,7 @@ def get_roles(user_id: uuid4):
 def set_roles(user_id: uuid4):
     """Добавить роль для юзера"""
     roles = request.json['role']
-    return set_roles_service(user_id, roles)
+    return set_role_by_user_service(user_id, roles)
 
 
 @doc(description='Удалить роль у юзера', tags=['Role'])
@@ -84,7 +84,7 @@ def set_roles(user_id: uuid4):
 def delete_roles(user_id: uuid4):
     """Удалить роль у юзера"""
     roles = request.json['role']
-    return delete_rols_service(user_id, roles)
+    return delete_role_by_user_service(user_id, roles)
 
 
 @rol.errorhandler(Exception)
