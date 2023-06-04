@@ -13,52 +13,56 @@ permission = Blueprint('permission', __name__)
 log = logging.getLogger(__name__)
 
 
-def get_permission_service(perm_id: uuid) -> PermissionSchema:
-    """Проверить описание доступа"""
-    permission = Permission.query.filter_by(id=perm_id).first()
+def get_permission_service(permission_id: uuid) -> PermissionSchema:
+    """Проверить описание доступа по id"""
+    permission = Permission.query.filter_by(id=permission_id).first()
     return PermissionSchema().dump(permission)
 
 
-def add_permission_to_role_service(perm_name, role_name, description) -> Response:
+def add_permission_to_role_service(permission_name: str, role_name: str, description: str) -> PermissionSchema:
     """Добавить доступы к роли"""
     try:
         role = Role.query.filter_by(name=role_name).first()
-        permission = Permission(name=perm_name, description=description, role_id=role.id)
+        permission = Permission(name=permission_name, description=description, role_id=role.id)
         db.session.add(permission)
         db.session.commit()
     except SQLAlchemyError:
+        log.exception("Error adding permission to role.")
         return jsonify(msg=MsgText.ERROR_BD)
-    return PermissionSchema.dump(permission)
+    return PermissionSchema().dump(permission)
 
 
-def change_perm_service(perm_id: uuid, description: str) -> RequireShema:
+def change_perm_service(permission_id: uuid, description: str) -> RequireShema | Response:
     """Изменить доступы юзера"""
     try:
-        require = db.session.query(Require).get(perm_id)
+        require = db.session.query(Require).get(permission_id)
         require.description = description
         db.session.add(require)
         db.session.commit()
     except SQLAlchemyError:
+        log.exception("Error updating permission.")
         return jsonify(msg=MsgText.ERROR_BD)
     return RequireShema().dump(require)
 
 
-def get_permissions_by_user_service(perm_id: uuid) -> [RequireShema]:
+def get_permissions_by_user_service(permission_id: uuid) -> [RequireShema]:
     """Получить все доступы юзера"""
     try:
-        require = Require.query.filter_by(id=perm_id).all()
+        require = Require.query.filter_by(id=permission_id).all()
     except SQLAlchemyError:
+        log.exception("Error retrieving user permissions.")
         return jsonify(msg=MsgText.ERROR_BD)
     return RequireShema(many=True).dump(require)
 
 
-def create_new_permission_service(perm_name: str, description: str) -> Response:
+def create_new_permission_service(permission_name: str, description: str) -> Response:
     """Создать новые настройки доступа"""
     try:
-        required = Require(name=perm_name, description=description)
+        required = Require(name=permission_name, description=description)
         db.session.add(required)
         db.session.commit()
     except SQLAlchemyError:
+        log.exception("Error creating new permission.")
         return jsonify(msg=MsgText.ERROR_BD)
     return RequireShema().dump(required)
 
@@ -71,6 +75,7 @@ def change_permission_service(perm_id: uuid, params: dict) -> RequireShema:
         db.session.add(required)
         db.session.commit()
     except SQLAlchemyError:
+        log.exception("Error updating permission.")
         return jsonify(msg=MsgText.ERROR_BD)
     return RequireShema().dump(required)
 
@@ -82,6 +87,7 @@ def get_permission_by_user_service(user_id: uuid) -> PermissionSchema:
         if permissions is None:
             return jsonify(msg=MsgText.USER_NOT_FOUND)
     except SQLAlchemyError:
+        log.exception("Error retrieving user permissions.")
         return jsonify(msg=MsgText.ERROR_BD)
     return PermissionSchema(many=True).dump(permissions)
 
@@ -97,6 +103,7 @@ def set_permission_from_user(user_id: uuid, permissions: str) -> UserSchema:
         db.session.add(user)
         db.session.commit()
     except SQLAlchemyError:
+        log.exception("Error setting user permissions.")
         return jsonify(msg=MsgText.ERROR_BD)
     return UserSchema().dump(user)
 
@@ -112,5 +119,6 @@ def delete_permission_from_user(user_id, permissions) -> Response:
         db.session.add(user)
         db.session.commit()
     except SQLAlchemyError:
+        log.exception("Error removing user permissions.")
         return jsonify(msg=MsgText.ERROR_BD)
     return jsonify(msg=MsgText.REMOVE_PERMISSION)

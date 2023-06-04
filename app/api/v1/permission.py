@@ -17,32 +17,33 @@ log = logging.getLogger(__name__)
 
 @doc(description='Получить описание доступа', tags=['Permission'])
 @marshal_with(PermissionSchema)
-@permission.route('/<perm_id>', methods=['GET'])
+@permission.route('/<uuid:perm_id>>', methods=['GET'])
 def get_perm(perm_id):
     """Получить описание доступа"""
     permissions_out = get_permission_service(perm_id)
     return jsonify(permissions_out)
 
 
-@doc(description='Создать новый доступ', tags=['Permission'])
+@doc(description='Создать новые права доступа для роли', tags=['Permission'])
 @marshal_with(PermissionSchema)
 @use_kwargs({'description': fields.Str()})
 @check_roles(roles=['admin'])
-@permission.route('/<perm_name>', methods=['POST'])
-def add_perm(perm_name):
+@permission.route('/', methods=['POST'])
+def add_permission_to_role():
     """Добавить доступы к роли"""
     params = request.json
+    perm_name = params['perm_name']
     role = params['role_name']
     perm = params['description']
     return add_permission_to_role_service(perm_name, role, perm)
 
 
-@doc(description='Изменить описание доступа', tags=['Permission'])
+@doc(description='Изменить описание прав доступа', tags=['Permission'])
 @marshal_with(RequireShema)
 @use_kwargs({'description': fields.Str()})
 @check_roles(roles=['admin'])
-@permission.route('/<perm_id>', methods=['PUT'])
-def change_perm(perm_id):
+@permission.route('/<uuid:perm_id>', methods=['PUT'])
+def change_permission(perm_id):
     params = request.json
     require_out = change_perm_service(perm_id, params['description'])
     return jsonify(require_out)
@@ -50,7 +51,7 @@ def change_perm(perm_id):
 
 @doc(description='Получить требуемые права доступа', tags=['Permission'])
 @marshal_with(RequireShema)
-@permission.route('/required/<perm_id>', methods=['GET'])
+@permission.route('/user/<uuid:perm_id>', methods=['GET'])
 def get_perms(perm_id):
     require_out = get_permissions_by_user_service(perm_id)
     return jsonify(require_out)
@@ -60,7 +61,7 @@ def get_perms(perm_id):
 @marshal_with(RequireShema)
 @use_kwargs({'description': fields.Str()})
 @check_roles(roles=['admin'])
-@permission.route('/required/<perm_name>', methods=['POST'])
+@permission.route('/<uuid:perm_id>', methods=['POST'])
 def add_perms(perm_name):
     """Установить требуемые права доступа"""
     params = request.json
@@ -70,7 +71,7 @@ def add_perms(perm_name):
 @doc(description='Изменить описание прав доступа', tags=['Permission'])
 @marshal_with(RequireShema)
 @check_roles(roles=['admin'])
-@permission.route('/required/<perm_id>', methods=['PUT'])
+@permission.route('/<uuid:perm_id>', methods=['PUT'])
 def change_perms(perm_id):
     """Изменить правa доступа"""
     params = request.json
@@ -79,7 +80,7 @@ def change_perms(perm_id):
 
 @doc(description='Возвращает список доступов юзера', tags=['Permission'])
 @marshal_with(PermissionSchema)
-@permission.route('/user/<user_id>', methods=['GET'])
+@permission.route('/user/<uuid:user_id>', methods=['GET'])
 def get_perm_user(user_id):
     """Возвращает список доступов юзера"""
     roles_out = get_permission_by_user_service(user_id)
@@ -90,7 +91,7 @@ def get_perm_user(user_id):
 @marshal_with(UserSchema)
 @use_kwargs({'permissions': fields.Str()})
 @check_roles(roles=['admin'])
-@permission.route('/user/<user_id>', methods=['POST'])
+@permission.route('/user/<uuid:user_id>', methods=['POST'])
 def set_perm_user(user_id) -> Response:
     """Добавить доступ для юзера"""
     permission_name = request.json['permissions']
@@ -101,7 +102,7 @@ def set_perm_user(user_id) -> Response:
 @marshal_with(RespSchema)
 @use_kwargs({'permissions': fields.Str()})
 @check_roles(roles=['admin'])
-@permission.route('/user/<user_id>', methods=['DELETE'])
+@permission.route('/user/<uuid:user_id>', methods=['DELETE'])
 def delete_perm_user(user_id):
     permission_name = request.json['permissions']
     return delete_permission_from_user(user_id, permission_name)
