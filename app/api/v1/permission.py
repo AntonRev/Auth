@@ -1,12 +1,13 @@
 import http
 import logging
+import uuid
 
 from flask import jsonify, request, Blueprint, Response
 from flask_apispec import use_kwargs, doc, marshal_with
 from webargs import fields
 
 from models.swagger_schema import PermissionSchema, RequireShema, RespSchema, UserSchema
-from services.permission import get_permission_service, add_permission_to_role_service, change_perm_service, get_permissions_by_user_service, \
+from services.permission import get_permission_service, get_permissions_by_user_service, \
     create_new_permission_service, change_permission_service, get_permission_by_user_service, set_permission_from_user, \
     delete_permission_from_user
 from utils.check import check_roles
@@ -24,32 +25,18 @@ def get_perm(perm_id):
     return jsonify(permissions_out)
 
 
-@doc(description='Создать новые права доступа для роли', tags=['Permission'])
-@marshal_with(PermissionSchema)
-@use_kwargs({'description': fields.Str()})
-@check_roles(roles=['admin'])
-@permission.route('/', methods=['POST'])
-def add_permission_to_role():
-    """Добавить доступы к роли"""
-    params = request.json
-    perm_name = params['perm_name']
-    role = params['role_name']
-    perm = params['description']
-    return add_permission_to_role_service(perm_name, role, perm)
-
-
 @doc(description='Изменить описание прав доступа', tags=['Permission'])
 @marshal_with(RequireShema)
 @use_kwargs({'description': fields.Str()})
 @check_roles(roles=['admin'])
 @permission.route('/<uuid:perm_id>', methods=['PUT'])
 def change_permission(perm_id):
-    params = request.json
-    require_out = change_perm_service(perm_id, params['description'])
+    change_params = request.json
+    require_out = change_permission_service(perm_id, change_params)
     return jsonify(require_out)
 
 
-@doc(description='Получить требуемые права доступа', tags=['Permission'])
+@doc(description='Получить права доступа', tags=['Permission'])
 @marshal_with(RequireShema)
 @permission.route('/user/<uuid:perm_id>', methods=['GET'])
 def get_perms(perm_id):
@@ -57,7 +44,7 @@ def get_perms(perm_id):
     return jsonify(require_out)
 
 
-@doc(description='Установить требуемые права доступа', tags=['Permission'])
+@doc(description='Создать права доступа', tags=['Permission'])
 @marshal_with(RequireShema)
 @use_kwargs({'description': fields.Str()})
 @check_roles(roles=['admin'])
@@ -72,7 +59,7 @@ def add_perms(perm_name):
 @marshal_with(RequireShema)
 @check_roles(roles=['admin'])
 @permission.route('/<uuid:perm_id>', methods=['PUT'])
-def change_perms(perm_id):
+def change_perms(perm_id: uuid):
     """Изменить правa доступа"""
     params = request.json
     return change_permission_service(perm_id, params)

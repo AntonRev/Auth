@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from api.v1.msg_text import MsgText
 from db.db import db
-from models.db_models import User, Role, Permission, Require
+from models.db_models import User, Permission, Require
 from models.swagger_schema import PermissionSchema, RequireShema, UserSchema
 
 permission = Blueprint('permission', __name__)
@@ -14,25 +14,12 @@ log = logging.getLogger(__name__)
 
 
 def get_permission_service(permission_id: uuid) -> PermissionSchema:
-    """Проверить описание доступа по id"""
+    """Получить описание доступа по id"""
     permission = Permission.query.filter_by(id=permission_id).first()
     return PermissionSchema().dump(permission)
 
 
-def add_permission_to_role_service(permission_name: str, role_name: str, description: str) -> PermissionSchema:
-    """Добавить доступы к роли"""
-    try:
-        role = Role.query.filter_by(name=role_name).first()
-        permission = Permission(name=permission_name, description=description, role_id=role.id)
-        db.session.add(permission)
-        db.session.commit()
-    except SQLAlchemyError:
-        log.exception("Error adding permission to role.")
-        return jsonify(msg=MsgText.ERROR_BD)
-    return PermissionSchema().dump(permission)
-
-
-def change_perm_service(permission_id: uuid, description: str) -> RequireShema | Response:
+def change_perm_by_user_service(permission_id: uuid, description: str) -> RequireShema | Response:
     """Изменить доступы юзера"""
     try:
         require = db.session.query(Require).get(permission_id)
