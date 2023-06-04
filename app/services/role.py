@@ -1,7 +1,7 @@
 import logging
 import uuid
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, Response
 from sqlalchemy.exc import SQLAlchemyError
 
 from api.v1.msg_text import MsgText
@@ -13,7 +13,7 @@ rol = Blueprint('rol', __name__)
 log = logging.getLogger(__name__)
 
 
-def get_permissions_by_role(role_name: str) -> PermissionSchema:
+def get_permissions_by_role(role_name: str) -> [PermissionSchema]:
     """Получить доступы по роли"""
     role = Role.query.filter_by(name=role_name).first()
     if role is None:
@@ -30,7 +30,7 @@ def add_rol_service(role: str, description: str) -> RoleSchema:
         db.session.commit()
     except SQLAlchemyError:
         return jsonify(msg=MsgText.ERROR_BD)
-    return role.json()
+    return RoleSchema().dump(role)
 
 
 def change_rol_service(role: str, description: str) -> RoleSchema:
@@ -47,7 +47,7 @@ def change_rol_service(role: str, description: str) -> RoleSchema:
     return RoleSchema().dump(change_role)
 
 
-def delete_rol_service(role: str) -> bool:
+def delete_rol_service(role: str) -> Response:
     """Удалить роль"""
     try:
         change_role = Role.query.filter_by(name=role).first()
@@ -75,7 +75,21 @@ def get_role_by_user_service(user_id: uuid) -> RoleSchema:
     return RoleSchema(many=True).dump(change_role)
 
 
-def set_role_by_user_service(user_id: uuid, roles: str) -> None:
+def add_permission_to_role_service(permission_id: uuid, role_id: uuid) -> PermissionSchema:
+    """Добавить доступы к роли"""
+    try:
+        role = Role.query.filter_by(id=role_id).first()
+        permission = Permission.query.filter_by(id=permission_id).first()
+        role.permissions.add(permission)
+        db.session.add(role)
+        db.session.commit()
+    except SQLAlchemyError:
+        log.exception("Error adding permission to role.")
+        return jsonify(msg=MsgText.ERROR_BD)
+    return PermissionSchema().dump(permission)
+
+
+def set_role_by_user_service(user_id: uuid, roles: str) -> UserSchema:
     """Установить роли для юзера"""
     try:
         user = db.session.query(User).get(user_id)
@@ -88,7 +102,7 @@ def set_role_by_user_service(user_id: uuid, roles: str) -> None:
     return UserSchema().dump(user)
 
 
-def delete_role_by_user_service(user_id: uuid, roles: str) -> bool:
+def delete_role_by_user_service(user_id: uuid, roles: str) -> Response:
     """Удалить роли для юзера"""
     try:
         user = db.session.query(User).get(user_id)
