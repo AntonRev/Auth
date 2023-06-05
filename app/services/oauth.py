@@ -23,8 +23,8 @@ def get_auth_servie(auth_name: str) -> str:
     """Получить ссылку в сервис authorize"""
     if auth_name == "yandex":
         parametrs_url = config.YANDEX_OAUTH
-        if auth_name == "vk":
-            parametrs_url = config.VK_OAUTH
+    if auth_name == "vk":
+        parametrs_url = config.VK_OAUTH
     url = f'https://oauth.{parametrs_url["url"]}.ru/authorize?' \
           f'response_type={parametrs_url["token"]}' \
           f'&client_id={parametrs_url["client_id"]}' \

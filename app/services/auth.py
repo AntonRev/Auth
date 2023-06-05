@@ -23,13 +23,18 @@ jwt_blocklist = jwt_db
 def login_service(email: str, password: str, ua: str) -> Response:
     """Авторизация пользователя"""
     user = User.query.filter_by(email=email).first()
+
     if user is None:
         return jsonify(msg=MsgText.INCORRECT_LOGIN)
+
     if not check_password_hash(user.password, password):
         return jsonify(msg=MsgText.INCORRECT_LOGIN)
+
     add_ua_user(ua, user)
+
     if user.auth_two_factor:
         return totp_check_template % email
+
     return jsonify(create_token(user))
 
 
@@ -67,19 +72,21 @@ def del_ua_in_user(id: uuid, ua: str) -> None:
     UserAgent.query.filter_by(user_id=id, ua=ua).delete()
 
 
-def check_user_exist(username: str) -> bool:
+def check_user_exist(username: str) -> None:
     """Проверка существования пользователя"""
     if User.query.filter_by(email=username).first() is not None:
-        return True
-    return False
+        return jsonify(msg=MsgText.USER_IS_EXIST)
 
+
+def validate_password(password, password2):
+    if password2 != password:
+        return jsonify(msg=MsgText.PASSWORDS_NOT_MATCH)
 
 def signup_service(username: str, password: str, password2: str, ua: str, age: int) -> Response:
     """Регистрация пользователя"""
-    if password2 != password:
-        return jsonify(msg=MsgText.PASSWORDS_NOT_MATCH)
-    if check_user_exist(username):
-        return jsonify(msg=MsgText.USER_IS_EXIST)
+    validate_password(password, password2)
+    check_user_exist(username)
+
     user = User(email=username, password=password, age_user=age)
     db.session.add(user)
     db.session.commit()
