@@ -23,7 +23,6 @@ jwt_blocklist = jwt_db
 def login_service(email: str, password: str, ua: str) -> Response:
     """Авторизация пользователя"""
     user = User.query.filter_by(email=email).first()
-
     if user is None:
         return jsonify(msg=MsgText.INCORRECT_LOGIN)
 
@@ -31,11 +30,10 @@ def login_service(email: str, password: str, ua: str) -> Response:
         return jsonify(msg=MsgText.INCORRECT_LOGIN)
 
     add_ua_user(ua, user)
-
     if user.auth_two_factor:
         return totp_check_template % email
 
-    return jsonify(create_token(user))
+    return create_token(user)
 
 
 def create_token(user: User) -> Response:
