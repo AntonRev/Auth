@@ -18,18 +18,17 @@ log = logging.getLogger(__name__)
 @doc(description='Возвращает описание и список доступов для роли', tags=['Role'])
 @marshal_with(PermissionSchema(many=True))
 @check_roles(roles=['admin'])
-@rol.route('/<str:role_name>', methods=['GET'])
+@rol.route('/<string:role_name>', methods=['GET'])
 def get_role(role_name: str):
-    """Возвращает описание и список доступов для роли"""
-    permissions_out = get_permissions_by_role(role_name)
-    return jsonify(permissions_out)
+    """Возвращает список доступов для роли"""
+    return get_permissions_by_role(role_name)
 
 
 @doc(description='Добавить новую роль', tags=['Role'])
 @check_roles(roles=['admin'])
 @marshal_with(RoleSchema())
 @use_kwargs({'description': fields.Str()})
-@rol.route('/<str:role>', methods=['POST'])
+@rol.route('/<string:role>', methods=['POST'])
 def add_role(role: str):
     """Добавить новую роль"""
     description = request.json['description']
@@ -40,7 +39,7 @@ def add_role(role: str):
 @marshal_with(RoleSchema())
 @use_kwargs({'description': fields.Str()})
 @check_roles(roles=['admin'])
-@rol.route('/<str:role>', methods=['PUT'])
+@rol.route('/<string:role>', methods=['PUT'])
 def change_role(role: str):
     """Изменить роль"""
     description = request.json['description']
@@ -50,7 +49,7 @@ def change_role(role: str):
 @doc(description='Удалить роль по названию', tags=['Role'])
 @check_roles(roles=['admin'])
 @marshal_with(RespSchema())
-@rol.route('/<str:role>', methods=['DELETE'])
+@rol.route('/<string:role>', methods=['DELETE'])
 def delete_role(role: str):
     """Удаление роли"""
     return delete_rol_service(role)
@@ -61,16 +60,16 @@ def delete_role(role: str):
 @rol.route('/user/<uuid:user_id>', methods=['GET'])
 def get_roles(user_id: uuid4):
     """Возвращает список ролей юзера"""
-    roles_out = get_role_by_user_service(user_id)
-    return jsonify(roles_out)
+    return get_role_by_user_service(user_id)
+
 
 
 @doc(description='Добавить роль для юзера', tags=['Role'])
 @marshal_with(UserSchema())
 @use_kwargs({'role': fields.Str()})
 @check_roles(roles=['admin'])
-@rol.route('/user/<user_id>', methods=['POST'])
-def set_roles(user_id: uuid4):
+@rol.route('/user/<uuid:user_id>', methods=['POST'])
+def set_roles_by_user(user_id: uuid4):
     """Добавить роль для юзера"""
     roles = request.json['role']
     return set_role_by_user_service(user_id, roles)
@@ -81,7 +80,7 @@ def set_roles(user_id: uuid4):
 @use_kwargs({'role': fields.Str()})
 @check_roles(roles=['admin'])
 @rol.route('/user/<uuid:user_id>', methods=['DELETE'])
-def delete_roles(user_id: uuid4):
+def delete_role_by_user(user_id: uuid4):
     """Удалить роль у юзера"""
     roles = request.json['role']
     return delete_role_by_user_service(user_id, roles)

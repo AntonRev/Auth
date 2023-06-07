@@ -35,8 +35,7 @@ def users():
 def index():
     """Страница пользователя"""
     id = get_jwt_identity()
-    user_out = index_service(id)
-    return jsonify(user_out)
+    return index_service(id)
 
 
 @doc(description='Страница с историей входов. Указываются только устройства с которых заходили', tags=['User'])
@@ -48,8 +47,7 @@ def history():
     page = request.args.get('page')
     per_page = request.args.get('per_page')
     id = get_jwt_identity()
-    user_agent = history_service(id, page, per_page)
-    return jsonify(user_agent)
+    return history_service(id, page, per_page)
 
 
 @user.errorhandler(422)

@@ -15,9 +15,10 @@ from opentelemetry.instrumentation.flask import FlaskInstrumentor
 
 from api.v1.auth import auth, signup_post, login, logout, refresh
 from api.v1.oauth import oauth, get_auth, set_auth
-from api.v1.permission import permission, add_perm, get_perm, change_perm, get_perms, add_perms, change_perms, \
-    get_perm_user, set_perm_user, delete_perm_user
-from api.v1.role import rol, get_role, add_role, change_role, delete_role, get_roles, set_roles, delete_roles
+from api.v1.permission import permission, get_permission, get_permissions, change_permission, \
+    delete_permission_by_user, set_permission_by_user, get_permission_by_user, create_new_permission
+from api.v1.role import rol, get_role, add_role, change_role, delete_role_by_user, get_roles, set_roles_by_user, \
+    delete_role
 from api.v1.totp import totp, check, sync_check, sync
 from api.v1.user import user, users, index
 from config.config import config
@@ -115,22 +116,20 @@ docs.register(users, blueprint='user')
 docs.register(index, blueprint='user')
 docs.register(logout, blueprint='auth')
 docs.register(refresh, blueprint='auth')
-docs.register(add_perm, blueprint='permission')
-docs.register(get_perm, blueprint='permission')
-docs.register(change_perm, blueprint='permission')
-docs.register(get_perms, blueprint='permission')
-docs.register(add_perms, blueprint='permission')
-docs.register(change_perms, blueprint='permission')
-docs.register(get_perm_user, blueprint='permission')
-docs.register(set_perm_user, blueprint='permission')
-docs.register(delete_perm_user, blueprint='permission')
+docs.register(get_permission, blueprint='permission')
+docs.register(change_permission, blueprint='permission')
+docs.register(get_permissions, blueprint='permission')
+docs.register(create_new_permission, blueprint='permission')
+docs.register(get_permission_by_user, blueprint='permission')
+docs.register(set_permission_by_user, blueprint='permission')
+docs.register(delete_permission_by_user, blueprint='permission')
 docs.register(get_role, blueprint='rol')
 docs.register(add_role, blueprint='rol')
 docs.register(change_role, blueprint='rol')
-docs.register(delete_role, blueprint='rol')
+docs.register(delete_role_by_user, blueprint='rol')
 docs.register(get_roles, blueprint='rol')
-docs.register(set_roles, blueprint='rol')
-docs.register(delete_roles, blueprint='rol')
+docs.register(set_roles_by_user, blueprint='rol')
+docs.register(delete_role, blueprint='rol')
 docs.register(check, blueprint='totp')
 docs.register(sync_check, blueprint='totp')
 docs.register(sync, blueprint='totp')

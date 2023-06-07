@@ -82,6 +82,7 @@ def validate_password(password, password2):
     if password2 != password:
         return jsonify(msg=MsgText.PASSWORDS_NOT_MATCH)
 
+
 def signup_service(username: str, password: str, password2: str, ua: str, age: int) -> Response:
     """Регистрация пользователя"""
     validate_password(password, password2)

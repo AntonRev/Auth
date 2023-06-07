@@ -5,7 +5,7 @@ from flask import redirect, jsonify, Blueprint, request
 from flask_apispec import doc, marshal_with
 
 from models.swagger_schema import RespSchema, TokenSchema
-from services.oauth import Yandex, Vk, set_auth_servie
+from services.oauth import Yandex, Vk, get_auth_servie
 from utils.circuit_breaker import circuitbreakers
 from utils.tracer import tracer
 
@@ -25,7 +25,7 @@ class NameOauth(Enum):
 @circuitbreakers(redirect_to='user.index')
 def set_auth(auth_name: str):
     """Запрос авторизации"""
-    url = set_auth_servie(auth_name)
+    url = get_auth_servie(auth_name)
     return redirect(url)
 
 
