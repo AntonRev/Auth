@@ -4,6 +4,7 @@ import pytest
 from flask import url_for
 
 from api.v1.msg_text import MsgText
+from tests.unit.conftest import USER_EMAIL, USER_PASS, ROLE
 
 access_token = ''
 refresh_token = ''
@@ -12,14 +13,14 @@ UA = 'werkzeug/2.2.2'
 
 class TestAuth:
     def test_auth_no_user(self, flask_app):
-        response = flask_app.post(url_for("auth.login"), json={"email": "testemail", "password": "tests"})
+        response = flask_app.post(url_for("auth.login"), json={"email": USER_EMAIL, "password": USER_PASS})
         assert response.status_code == http.HTTPStatus.OK
 
     def test_auth_with_user(self, app_with_data):
         global access_token
         global refresh_token
         response = app_with_data.post(url_for("auth.login"),
-                                      json={"email": "testemail", "password": "tests", "role": "testrole"})
+                                      json={"email": USER_EMAIL, "password": USER_PASS, "role": ROLE})
         assert response.status_code == http.HTTPStatus.OK
         data = response.json
         assert 'access_token' in data
@@ -30,7 +31,8 @@ class TestAuth:
     def test_refresh_with_user(self, app_with_data):
         global access_token
         global refresh_token
-        headers = {'Authorization': f'Bearer {refresh_token}'}
+        headers = {'Authorization': f'Bearer {refresh_token}',
+                   'User-Agent': 'Mozilla/5.0 ()'}
         response = app_with_data.post(url_for("auth.refresh"), headers=headers)
         assert response.status_code == http.HTTPStatus.OK
 
@@ -69,7 +71,11 @@ class TestAuth:
         response = app_with_data.post(url_for("auth.signup_post"),
                                       json={"email": query_data['email'],
                                             "password1": query_data["password1"],
-                                            "password2": query_data["password2"]})
+                                            "password2": query_data["password2"],
+                                            "age": 18})
         assert response.status_code == expected_answer["status"]
         data = response.json
-        assert expected_answer["msg"] in data['msg']
+        print(data)
+        print('data')
+        print('data')
+        assert expected_answer["msg"] in data

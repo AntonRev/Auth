@@ -59,7 +59,7 @@ def refresh(**kwargs) -> Response:
 
 @doc(description='Выход пользователя', tags=['Authorization'])
 @marshal_with(RespSchema())
-@auth.route("/logout", methods=["POST"])
+@auth.route("/logout", methods=["DELETE"])
 @jwt_required()
 def logout():
     """Выход пользователя"""

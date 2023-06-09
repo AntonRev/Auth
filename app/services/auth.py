@@ -72,7 +72,8 @@ def del_ua_in_user(id: uuid, ua: str) -> None:
 
 def check_user_exist(username: str) -> None:
     """Проверка существования пользователя"""
-    if User.query.filter_by(email=username).first() is not None:
+    user = User.query.filter_by(email=username).first()
+    if user is not None:
         return jsonify(msg=MsgText.USER_IS_EXIST)
 
 

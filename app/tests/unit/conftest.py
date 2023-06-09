@@ -4,25 +4,28 @@ from app import app
 from db.db import db, init_db
 from models.db_models import User, Role
 
+ROLE = 'user'
+USER_EMAIL = 'test_email'
+USER_PASS = 'test_password'
 
 @pytest.fixture(scope='session')
 def flask_app():
     init_db(app)
-    client = app.test_client()
-    ctx = app.test_request_context()
-    ctx.push()
+    with app.test_client() as client:
+        ctx = app.test_request_context()
+        ctx.push()
 
-    yield client
+        yield client
 
     ctx.pop()
 
 
 @pytest.fixture(scope='session')
 def app_with_data(flask_app):
-    role = Role(name='testrole', description='Test user role')
+    role = Role(name=ROLE, description='Test user role')
     db.session.add(role)
     db.session.commit()
-    user = User(email='testemail', password='tests', role='testrole')
+    user = User(email=USER_EMAIL, password=USER_PASS, role=ROLE)
     db.session.add(user)
     db.session.commit()
 
@@ -31,3 +34,4 @@ def app_with_data(flask_app):
     db.session.delete(user)
     db.session.delete(role)
     db.session.commit()
+    db.session.close()
