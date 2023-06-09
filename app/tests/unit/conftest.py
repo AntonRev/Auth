@@ -17,7 +17,7 @@ def flask_app():
 
         yield client
 
-    ctx.pop()
+        ctx.pop()
 
 
 @pytest.fixture(scope='session')
@@ -31,7 +31,10 @@ def app_with_data(flask_app):
 
     yield flask_app
 
-    db.session.delete(user)
-    db.session.delete(role)
-    db.session.commit()
-    db.session.close()
+    # db.session.delete(user)
+    # db.session.delete(role)
+    # db.session.remove()
+    # db.session.rollback()
+    # db.session.commit()
+    # db.session.close()
+

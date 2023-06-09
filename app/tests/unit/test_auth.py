@@ -48,26 +48,10 @@ class TestAuth:
             (
                     {'email': 'email_test', 'password1': 'test_1', 'password2': 'test_1'},
                     {'status': http.HTTPStatus.OK, 'msg': 'access_token'}
-            ),
-            (
-                    {'email': 'email_test', 'password1': 'test_1', 'password2': 'test_1'},
-                    {'status': http.HTTPStatus.OK, 'msg': MsgText.USER_IS_EXIST}
-            ),
-            (
-                    {'email': 'email_test_1', 'password1': 'test_1', 'password2': 'test_2'},
-                    {'status': http.HTTPStatus.OK, 'msg': MsgText.PASSWORDS_NOT_MATCH}
-            ),
-            (
-                    {'email': 'email_test_2', 'password1': 'test_1', 'password2': None},
-                    {'status': http.HTTPStatus.OK, 'msg': MsgText.PASSWORDS_NOT_MATCH}
-            ),
-            (
-                    {'email': None, 'password1': 'test_1', 'password2': 'test_2'},
-                    {'status': http.HTTPStatus.OK, 'msg': MsgText.PASSWORDS_NOT_MATCH}
             )
         ]
     )
-    def test_sing_with_user(self, app_with_data, query_data, expected_answer):
+    def test_true_sing_with_user(self, app_with_data, query_data, expected_answer):
         response = app_with_data.post(url_for("auth.signup_post"),
                                       json={"email": query_data['email'],
                                             "password1": query_data["password1"],
@@ -75,7 +59,35 @@ class TestAuth:
                                             "age": 18})
         assert response.status_code == expected_answer["status"]
         data = response.json
-        print(data)
-        print('data')
-        print('data')
         assert expected_answer["msg"] in data
+
+    @pytest.mark.parametrize(
+        'query_data, expected_answer',
+        [
+            (
+                    {'email': 'email_test', 'password1': 'test_1', 'password2': 'test_1'},
+                    {'status': http.HTTPStatus.OK, 'msg': f'{MsgText.USER_IS_EXIST}'}
+            ),
+            (
+                    {'email': 'email_test_1', 'password1': 'test_1', 'password2': 'test_2'},
+                    {'status': http.HTTPStatus.OK, 'msg': f'{MsgText.PASSWORDS_NOT_MATCH}'}
+            ),
+            (
+                    {'email': 'email_test_2', 'password1': 'test_1', 'password2': None},
+                    {'status': http.HTTPStatus.OK, 'msg': f'{MsgText.PASSWORDS_NOT_MATCH}'}
+            ),
+            (
+                    {'email': None, 'password1': 'test_1', 'password2': 'test_2'},
+                    {'status': http.HTTPStatus.OK, 'msg': f'{MsgText.PASSWORDS_NOT_MATCH}'}
+            )
+        ]
+    )
+    def test_bad_sing_with_user(self, app_with_data, query_data, expected_answer):
+        response = app_with_data.post(url_for("auth.signup_post"),
+                                      json={"email": query_data['email'],
+                                            "password1": query_data["password1"],
+                                            "password2": query_data["password2"],
+                                            "age": 18})
+        assert response.status_code == expected_answer["status"]
+        data = response.json
+        assert expected_answer["msg"] in data['msg']

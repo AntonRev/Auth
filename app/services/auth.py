@@ -70,22 +70,29 @@ def del_ua_in_user(id: uuid, ua: str) -> None:
     UserAgent.query.filter_by(user_id=id, ua=ua).delete()
 
 
-def check_user_exist(username: str) -> None:
+def is_user_exist(username: str) -> bool:
     """Проверка существования пользователя"""
     user = User.query.filter_by(email=username).first()
     if user is not None:
-        return jsonify(msg=MsgText.USER_IS_EXIST)
+        return True
+    return False
 
 
-def validate_password(password, password2):
+def not_validate_password(password, password2):
     if password2 != password:
-        return jsonify(msg=MsgText.PASSWORDS_NOT_MATCH)
+        return True
+    if password2 is None or password is None:
+        return True
+    return False
 
 
 def signup_service(username: str, password: str, password2: str, ua: str, age: int) -> Response:
     """Регистрация пользователя"""
-    validate_password(password, password2)
-    check_user_exist(username)
+    if not_validate_password(password, password2):
+        return jsonify(msg=MsgText.PASSWORDS_NOT_MATCH)
+
+    if is_user_exist(username):
+        return jsonify(msg=MsgText.USER_IS_EXIST)
 
     user = User(email=username, password=password, age_user=age)
     db.session.add(user)
