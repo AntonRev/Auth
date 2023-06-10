@@ -12,15 +12,15 @@ UA = 'werkzeug/2.2.2'
 
 
 class TestAuth:
-    def test_auth_no_user(self, flask_app):
-        response = flask_app.post(url_for("auth.login"), json={"email": USER_EMAIL, "password": USER_PASS})
+    def test_auth_no_user(self, client):
+        response = client.post(url_for("auth.login"), json={"email": USER_EMAIL, "password": USER_PASS})
         assert response.status_code == http.HTTPStatus.OK
 
-    def test_auth_with_user(self, app_with_data):
+    def test_auth_with_user(self, client_with_data):
         global access_token
         global refresh_token
-        response = app_with_data.post(url_for("auth.login"),
-                                      json={"email": USER_EMAIL, "password": USER_PASS, "role": ROLE})
+        response = client_with_data.post(url_for("auth.login"),
+                                         json={"email": USER_EMAIL, "password": USER_PASS, "role": ROLE})
         assert response.status_code == http.HTTPStatus.OK
         data = response.json
         assert 'access_token' in data
@@ -28,18 +28,18 @@ class TestAuth:
         access_token = data['access_token']
         refresh_token = data['refresh_token']
 
-    def test_refresh_with_user(self, app_with_data):
+    def test_refresh_with_user(self, client_with_data):
         global access_token
         global refresh_token
         headers = {'Authorization': f'Bearer {refresh_token}',
-                   'User-Agent': 'Mozilla/5.0 ()'}
-        response = app_with_data.post(url_for("auth.refresh"), headers=headers)
+                   'User-Agent': UA}
+        response = client_with_data.post(url_for("auth.refresh"), headers=headers)
         assert response.status_code == http.HTTPStatus.OK
 
-    def test_logout_with_user(self, app_with_data):
+    def test_logout_with_user(self, client_with_data):
         global access_token
         headers = {'Authorization': f'Bearer {access_token}'}
-        response = app_with_data.delete(url_for("auth.logout"), headers=headers)
+        response = client_with_data.delete(url_for("auth.logout"), headers=headers)
         assert response.status_code == http.HTTPStatus.OK
 
     @pytest.mark.parametrize(
@@ -51,9 +51,9 @@ class TestAuth:
             )
         ]
     )
-    def test_true_sing_with_user(self, app_with_data, query_data, expected_answer):
-        response = app_with_data.post(url_for("auth.signup_post"),
-                                      json={"email": query_data['email'],
+    def test_true_sing_with_user(self, client_with_data, query_data, expected_answer):
+        response = client_with_data.post(url_for("auth.signup_post"),
+                                         json={"email": query_data['email'],
                                             "password1": query_data["password1"],
                                             "password2": query_data["password2"],
                                             "age": 18})
@@ -82,9 +82,9 @@ class TestAuth:
             )
         ]
     )
-    def test_bad_sing_with_user(self, app_with_data, query_data, expected_answer):
-        response = app_with_data.post(url_for("auth.signup_post"),
-                                      json={"email": query_data['email'],
+    def test_bad_sing_with_user(self, client_with_data, query_data, expected_answer):
+        response = client_with_data.post(url_for("auth.signup_post"),
+                                         json={"email": query_data['email'],
                                             "password1": query_data["password1"],
                                             "password2": query_data["password2"],
                                             "age": 18})

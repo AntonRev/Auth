@@ -10,7 +10,8 @@ services:
   postgres:
     image: postgres:13.0-alpine
     volumes:
-      - ./postgresql/data:/var/lib/postgresql/data
+    - ./config/docker-postgresql-multiple-databases:/docker-entrypoint-initdb.d
+    - ./postgresql/data:/var/lib/postgresql/data
     expose:
       - "5432"
     restart: always

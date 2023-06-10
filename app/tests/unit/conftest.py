@@ -1,27 +1,30 @@
 import pytest as pytest
 
-from app import app
-from db.db import db, init_db
+from application import create_app
+from db.db import db
 from models.db_models import User, Role
 
 ROLE = 'user'
 USER_EMAIL = 'test_email'
 USER_PASS = 'test_password'
 
-@pytest.fixture(scope='session')
-def flask_app():
-    init_db(app)
-    with app.test_client() as client:
-        ctx = app.test_request_context()
-        ctx.push()
-
-        yield client
-
-        ctx.pop()
-
 
 @pytest.fixture(scope='session')
-def app_with_data(flask_app):
+def client():
+    app = create_app(test=True)
+    with app.app_context():
+        db.create_all()
+        with app.test_client() as client:
+            ctx = app.test_request_context()
+            ctx.push()
+            yield client
+
+        db.session.remove()
+        db.drop_all()
+
+
+@pytest.fixture(scope='session')
+def client_with_data(client):
     role = Role(name=ROLE, description='Test user role')
     db.session.add(role)
     db.session.commit()
@@ -29,12 +32,4 @@ def app_with_data(flask_app):
     db.session.add(user)
     db.session.commit()
 
-    yield flask_app
-
-    # db.session.delete(user)
-    # db.session.delete(role)
-    # db.session.remove()
-    # db.session.rollback()
-    # db.session.commit()
-    # db.session.close()
-
+    yield client
