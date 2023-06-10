@@ -1,6 +1,8 @@
 from datetime import timedelta
 from logging import config as logging_config
 
+from apispec import APISpec
+from apispec.ext.marshmallow import MarshmallowPlugin
 from pydantic import BaseSettings, Field
 
 from config.logger import LOGGING
@@ -15,7 +17,7 @@ class Settings(BaseSettings):
     REDIS_HOST: str = Field('127.0.0.1', env='REDIS_HOST')
     REDIS_PORT: int = Field(6379, env='REDIS_PORT')
     CACHE_EXPIRE_IN_SECONDS: int = Field(300, env='CACHE_EXPIRE_IN_SECONDS')  # 5 минут
-    REQUEST_LIMIT_PER_MINUTE: int = Field(5, env='REQUEST_LIMIT_PER_MINUTE')  # 5 запросов в мин с 1 ip при @ratelimit()
+    REQUEST_LIMIT_PER_MINUTE: int = Field(500, env='REQUEST_LIMIT_PER_MINUTE')  # 500 запросов в мин с 1 ip при @ratelimit()
 
     # Настройки Postgresql
     POSTGRES_SERVER: str = Field('127.0.0.1', env='POSTGRES_SERVER')
@@ -61,11 +63,22 @@ config = Settings()
 # Настройки для FLASK
 class Config(object):
     DEBUG = True
+
     # JWT settings
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     JWT_SECRET_KEY = config.JWT_SECRET_KEY
     JWT_ALGORITHM = 'HS256'
-    APISPEC_SWAGGER_URL = '/swagger/'
     OPENAPI_SWAGGER_UI_SUPPORTED_SUBMIT_METHODS = ['get', 'put', 'post', 'delete', 'head', 'patch', 'trace']
     TRAP_HTTP_EXCEPTIONS = 'True'
+
+    # Create an APISpec
+    APISPEC_SPEC = APISpec(
+        title='Auth Project',
+        version='v1',
+        plugins=[MarshmallowPlugin()],
+        openapi_version='2.0.0'
+    )
+
+    APISPEC_SWAGGER_URL = '/api/v1/swagger/'  # URI to access API Doc JSON
+    APISPEC_SWAGGER_UI_URL = '/api/v1/swagger-ui/'  # URI to access UI of API Doc
